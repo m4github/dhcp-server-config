@@ -2,13 +2,15 @@
  * @file dhcpd_conf.c
  * @author Mohadeseh_Forghani (m4ghaniofficial@gmail.com)
  * @brief config the dhcp server with user data.
- * @version 0.1.0
+ * @version 0.1.1
  * @date 21 Oct 2021
  *
  * @copyright Copyright (c) 2021
  *
  */
 #include <errno.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 #include "dhcpd_conf.h"
 #include "secureInput.h"
