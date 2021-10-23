@@ -29,11 +29,9 @@ struct variable
   char *rangeDown;
   char *gateway;
   char *dns;
-
   char *configLoc;
 
   FILE *dhcpdConfig;
-
 };
 
 void getSubnet (struct variable *data);
@@ -53,5 +51,7 @@ void setLoc (struct variable *data);
 void closeFile (struct variable *data);
 
 void freeMem (struct variable *data);
+
+char getInput();
 
 #endif
