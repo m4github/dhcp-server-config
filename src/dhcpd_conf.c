@@ -2,8 +2,8 @@
  * @file dhcpd_conf.c
  * @author Mohadeseh_Forghani (m4ghaniofficial@gmail.com)
  * @brief config the dhcp server with user data.
- * @version 0.2.1
- * @date 21 Oct 2021
+ * @version 0.2.0
+ * @date 23 Oct 2021
  *
  * @copyright Copyright (c) 2021
  *
@@ -20,184 +20,82 @@
 void
 initMem (struct  variable *data)
 {
+  MALLOC_AND_ERRCHECK (data->network, sizeof (char));
 
-  MALLOC_AND_ERRCHECK (data->subnet, sizeof (char));
-
-  MALLOC_AND_ERRCHECK (data->netmask, sizeof (char));
-
-  MALLOC_AND_ERRCHECK (data->rangeUp, sizeof (char));
-
-  MALLOC_AND_ERRCHECK (data->rangeDown, sizeof (char));
+  MALLOC_AND_ERRCHECK (data->range, sizeof (char));
 
   MALLOC_AND_ERRCHECK (data->gateway, sizeof (char));
 
   MALLOC_AND_ERRCHECK (data->dns, sizeof (char));
 
   MALLOC_AND_ERRCHECK (data->configLoc, sizeof (char));
-
-}
-char
-getInput()
-{
-  char *input = (char *)malloc (sizeof (char) * MAX_LEN);
-
-  MALLOC_AND_ERRCHECK (input, MAX_LEN);
-
-  size_t size = sizeof (input);
-
-  getline (&input, &size, stdin);
-
-  input[strlen (input) - 1] = '\0';
-
-  input = strtok (input, " ");
-
-  if (!input)
-
-    input = (char *)malloc (sizeof (char) * MAX_LEN);
-
-  MALLOC_AND_ERRCHECK (input, MAX_LEN);
-
-  return input;
-
-// free (input);
 }
 
 void
-getSubnet (struct variable *data)
-{
-  char *tmp = (char *)malloc (sizeof (char) * MAX_LEN);
-
-  strncpy (data->subnet, getInput(), (size_t)MAX_LEN);
-
-  sprintf (tmp, "subnet ");
-  sprintf (tmp, data->subnet);
-
-  data->dhcpdconfig = fopen (data->configLoc, "w");
-
-  if (data->dhcpdconfig == NULL)
-  {
-    errno = ENOENT;
-    exit (errno);
-  }
-
-  fputs (tmp, data->dhcpdconfig);
-
-  free (tmp);
-}
-
-void
-getnetMask (struct variable *data)
-{
-  char *tmp = (char *)malloc (sizeof (char) * MAX_LEN);
-
-  strncpy (data->netmask, getInput(), (size_t)MAX_LEN);
-
-  sprintf (tmp, " netmask ");
-  sprintf (tmp, data->netmask);
-  sprintf (tmp, " { ");
-
-  data->dhcpdconfig = fopen (data->configLoc, "w");
-
-  if (data->dhcpdconfig == NULL)
-  {
-    errno = ENOENT;
-    exit (errno);
-  }
-
-  fputs (tmp, data->dhcpdconfig);
-
-  free (tmp);
-}
-
-void
-getRange (struct variable *data)
-{
-  char *tmp = (char *)malloc (sizeof (char) * MAX_LEN);
-
-  strncpy (data->rangeUp, getInput(), (size_t)MAX_LEN);
-  strncpy (data->rangeDown, getInput(), (size_t)MAX_LEN);
-
-  sprintf (tmp, "range ");
-  sprintf (tmp, data->rangeUp);
-  sprintf (tmp, " ");
-  sprintf (tmp, data->rangeDown);
-  sprintf (tmp, ";");
-
-  data->dhcpdconfig = fopen (data->configLoc, "w");
-
-  if (data->dhcpdconfig == NULL)
-  {
-    errno = ENOENT;
-    exit (errno);
-  }
-
-  fputs (tmp, data->dhcpdconfig);
-
-  free (tmp);
-}
-
-void
-getGateway (struct variable *data)
-{
-  char *tmp = (char *)malloc (sizeof (char) * MAX_LEN);
-
-  strncpy (data->gateway, getInput(), (size_t)MAX_LEN);
-
-  sprintf (tmp, "option routers ");
-  sprintf (tmp, data->gateway);
-  sprintf (tmp, ";");
-
-  data->dhcpdconfig = fopen (data->configLoc, "w");
-
-  if (data->dhcpdconfig == NULL)
-  {
-    errno = ENOENT;
-    exit (errno);
-  }
-
-  fputs (tmp, data->dhcpdconfig);
-
-  free (tmp);
-}
-
-void
-getDNS (struct variable *data)
-{
-  char *tmp = (char *)malloc (sizeof (char) * MAX_LEN);
-
-  strncpy (data->dns, getInput(), (size_t)MAX_LEN);
-
-  sprintf (tmp, "option domain-name-servers ");
-  sprintf (tmp, data->dns);
-  sprintf (tmp, ";");
-  sprintf (tmp, " }");
-
-  data->dhcpdconfig = fopen (data->configLoc, "w");
-
-  if (data->dhcpdconfig == NULL)
-  {
-    errno = ENOENT;
-    exit (errno);
-  }
-
-  fputs (tmp, data->dhcpdconfig);
-
-  free (tmp);
-}
-
-void
-setLoc (struct  variable *data)
+initfile (struct variable *data)
 {
   sprintf (data->configLoc, "/etc/dhcp/dhcpd.conf");
+
+  data->dhcpdconfig = fopen (data->configLoc, "w");
+}
+
+void
+getNetwork (int argc, char *argv[],struct variable *data)
+{
+//subnet and  netmask
+
+  sprintf (data->network, "subnet ");
+  sprintf (data->network, argv[0]);
+
+  sprintf (data->network, " netmask ");
+  sprintf (data->network, argv[1]);
+
+  sprintf (data->network, " { ");
+
+  fputs (data->network, data->dhcpdconfig);
+}
+
+void
+getRange (int argc, char *argv[],struct variable *data)
+{
+  sprintf (data->range, "range ");
+  sprintf (data->range, argv[0]);
+
+  sprintf (data->range, " ");
+
+  sprintf (data->range, argv[1]);
+  sprintf (data->range, ";");
+
+  fputs (data->range, data->dhcpdconfig);
+}
+
+void
+getGateway (int argc, char *argv[],struct variable *data)
+{
+  sprintf (data->gateway, "option routers ");
+  sprintf (data->gateway, argv[0]);
+  sprintf (data->gateway, ";");
+
+  fputs (data->gateway, data->dhcpdconfig);
+}
+
+void
+getDNS (int argc, char *argv[],struct variable *data)
+{
+  sprintf (data->dns, "option domain-name-servers ");
+  sprintf (data->dns, argv[0]);
+  sprintf (data->dns, ";");
+
+  sprintf (data->dns, " }");
+
+  fputs (data->dns, data->dhcpdconfig);
 }
 
 void
 freeMem (struct  variable *data)
 {
-  free (data->subnet);
-  free (data->netmask);
-  free (data->rangeUp);
-  free (data->rangeDown);
+  free (data->network);
+  free (data->range);
   free (data->gateway);
   free (data->dns);
   free (data->configLoc);
