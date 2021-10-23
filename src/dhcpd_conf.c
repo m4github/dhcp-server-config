@@ -2,7 +2,7 @@
  * @file dhcpd_conf.c
  * @author Mohadeseh_Forghani (m4ghaniofficial@gmail.com)
  * @brief config the dhcp server with user data.
- * @version 0.1.0
+ * @version 0.2.1
  * @date 21 Oct 2021
  *
  * @copyright Copyright (c) 2021
@@ -11,9 +11,9 @@
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "dhcpd_conf.h"
-#include "secureInput.h"
 
 #define MAX_LEN 1024
 
@@ -36,13 +36,38 @@ initMem (struct  variable *data)
   MALLOC_AND_ERRCHECK (data->configLoc, sizeof (char));
 
 }
+char
+getInput()
+{
+  char *input = (char *)malloc (sizeof (char) * MAX_LEN);
+
+  MALLOC_AND_ERRCHECK (input, MAX_LEN);
+
+  size_t size = sizeof (input);
+
+  getline (&input, &size, stdin);
+
+  input[strlen (input) - 1] = '\0';
+
+  input = strtok (input, " ");
+
+  if (!input)
+
+    input = (char *)malloc (sizeof (char) * MAX_LEN);
+
+  MALLOC_AND_ERRCHECK (input, MAX_LEN);
+
+  return input;
+
+// free (input);
+}
 
 void
 getSubnet (struct variable *data)
 {
   char *tmp = (char *)malloc (sizeof (char) * MAX_LEN);
 
-  getWord (data->subnet); /*TODO its wrong*/
+  strncpy (data->subnet, getInput(), (size_t)MAX_LEN);
 
   sprintf (tmp, "subnet ");
   sprintf (tmp, data->subnet);
@@ -65,7 +90,7 @@ getnetMask (struct variable *data)
 {
   char *tmp = (char *)malloc (sizeof (char) * MAX_LEN);
 
-  getWord (data->netmask); /*TODO its wrong*/
+  strncpy (data->netmask, getInput(), (size_t)MAX_LEN);
 
   sprintf (tmp, " netmask ");
   sprintf (tmp, data->netmask);
@@ -89,8 +114,8 @@ getRange (struct variable *data)
 {
   char *tmp = (char *)malloc (sizeof (char) * MAX_LEN);
 
-  getWord (data->rangeUp); /*TODO its wrong*/
-  getWord (data->rangeDown); /*TODO its wrong*/
+  strncpy (data->rangeUp, getInput(), (size_t)MAX_LEN);
+  strncpy (data->rangeDown, getInput(), (size_t)MAX_LEN);
 
   sprintf (tmp, "range ");
   sprintf (tmp, data->rangeUp);
@@ -116,7 +141,7 @@ getGateway (struct variable *data)
 {
   char *tmp = (char *)malloc (sizeof (char) * MAX_LEN);
 
-  getWord (data->gateway); /*TODO its wrong*/
+  strncpy (data->gateway, getInput(), (size_t)MAX_LEN);
 
   sprintf (tmp, "option routers ");
   sprintf (tmp, data->gateway);
@@ -140,7 +165,7 @@ getDNS (struct variable *data)
 {
   char *tmp = (char *)malloc (sizeof (char) * MAX_LEN);
 
-  getWord (data->dns); /*TODO its wrong*/
+  strncpy (data->dns, getInput(), (size_t)MAX_LEN);
 
   sprintf (tmp, "option domain-name-servers ");
   sprintf (tmp, data->dns);
