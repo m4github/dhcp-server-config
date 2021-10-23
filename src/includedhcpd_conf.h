@@ -2,12 +2,13 @@
  * @file dhcpd_conf.h
  * @author Mohadeseh_Forghani (m4ghaniofficial@gmail.com)
  * @brief  A library to config the dhcp server with user data.
- * @version 0.1.0
- * @date 21 Oct 2021
+ * @version 0.1.1
+ * @date 23 Oct 2021
  *
  * @copyright Copyright (c) 2021
  *
  */
+#include <stdio.h>
 
 #if !defined(_DHCPD_CONF_H)
 #define _DHCPD_CONF_H
@@ -22,7 +23,6 @@
 
 struct variable
 {
-  char tmp;
   char *subnet;
   char *netmask;
   char *rangeUp;
