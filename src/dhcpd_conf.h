@@ -20,8 +20,7 @@
     exit(EXIT_FAILURE); \
   } \
 
-
-struct variable
+struct pool
 {
   char *tmp;
 
@@ -29,7 +28,7 @@ struct variable
 
   char *netmask;
 
-// char *rangeUp;
+  //char *rangeUp;
 
   //char *rangeDown;
 
@@ -38,24 +37,16 @@ struct variable
   char *dns;
 
   char *configLoc;
-
-  FILE *dhcpdconfig;
 };
 
-void getData (int argc, char *argv[], struct variable *data);
+void getData (int argc, char *argv[], struct pool *data);
 
-void setData (struct variable *data);
+void setData (struct pool *data);
 
-void pushData (struct variable *data);
+void pushData (struct pool *data);
 
-void initfile (struct variable *data);
+void initMem (struct pool *data);
 
-void initMem (struct variable *data);
-
-//void getRange (int argc, char *argv[], struct variable *data);
-
-void closeFile (struct variable *data);
-
-void freeMem (struct variable *data);
+void freeMem (struct pool *data);
 
 #endif
