@@ -2,7 +2,7 @@
  * @file main.c
  * @author Mohadeseh_Forghani (m4ghaniofficial@gmail.com)
  * @brief main file to config the dhcp server with user data.
- * @version 0.2.0
+ * @version 0.2.2
  * @date 23 Oct 2021
  *
  * @copyright Copyright (c) 2021
@@ -17,17 +17,14 @@ main (int argc, char *argv)
 {
   struct variable data;
 
-  initMem (&data);
-
   initfile (&data);
 
-  getNetwork (argc, &argv, &data);
+  while (argv[0] != 'exit')
+    getData (argc, &argv, &data);
 
-  getRange (argc, &argv, &data);
+  setData (&data);
 
-  getGateway (argc, &argv, &data);
-
-  getDNS (argc, &argv, &data);
+  pushData (&data);
 
   closeFile (&data);
 
