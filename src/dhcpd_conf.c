@@ -40,7 +40,7 @@ initMem (struct  variable *data)
 void
 getData (int argc, char *argv[], struct variable *data)
 {
-  switch ()
+  switch (long int(argv[1]))
   {
   case 'network':
     strcpy (data->subnet, argv[2]);
