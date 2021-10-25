@@ -40,19 +40,19 @@ initMem (struct  variable *data)
 void
 getData (int argc, char *argv[], struct variable *data)
 {
-  switch ((unsigned long int)argv[0]) //TODO is it secure?
+  switch ()
   {
   case 'network':
-    sprintf (data->subnet, argv[1]);
-    sprintf (data->netmask, argv[2]);
+    strcpy (data->subnet, argv[2]);
+    strcpy (data->netmask, argv[3]);
     break;
 
   case 'default-router':
-    sprintf (data->gateway, argv[1]);
+    strcpy (data->gateway, argv[2]);
     break;
 
   case 'dns-server':
-    sprintf (data->dns, argv[1]);
+    strcpy (data->dns, argv[2]);
     //TODO do we need second dns?
     break;
 
@@ -65,20 +65,20 @@ getData (int argc, char *argv[], struct variable *data)
 void
 setData (struct variable *data)
 {
-  sprintf (data->tmp, "subnet ");
-  sprintf (data->tmp, data->subnet);
-  sprintf (data->tmp, " netmask ");
-  sprintf (data->tmp, data->netmask);
-  sprintf (data->tmp, " { \n");
+  strcpy (data->tmp, "subnet ");
+  strcpy (data->tmp, data->subnet);
+  strcpy (data->tmp, " netmask ");
+  strcpy (data->tmp, data->netmask);
+  strcpy (data->tmp, " { \n");
 
-  sprintf (data->tmp, "option routers ");
-  sprintf (data->tmp, data->gateway);
-  sprintf (data->tmp, "; \n");
+  strcpy (data->tmp, "option routers ");
+  strcpy (data->tmp, data->gateway);
+  strcpy (data->tmp, "; \n");
 
 
-  sprintf (data->tmp, "option domain-name-servers ");
-  sprintf (data->tmp, data->dns);
-  sprintf (data->tmp, "; } \n");
+  strcpy (data->tmp, "option domain-name-servers ");
+  strcpy (data->tmp, data->dns);
+  strcpy (data->tmp, "; } \n");
 }
 
 void
@@ -90,7 +90,7 @@ pushData (struct variable *data)
 void
 initfile (struct variable *data)
 {
-  sprintf (data->configLoc, "/etc/dhcp/dhcpd.conf");
+  strcpy (data->configLoc, "/etc/dhcp/dhcpd.conf");
 
   data->dhcpdconfig = fopen (data->configLoc, "w");
 }
@@ -99,13 +99,13 @@ initfile (struct variable *data)
 void
 getRange (int argc, char *argv[], struct variable *data)
 {
-  sprintf (data->range, "range ");
-  sprintf (data->range, argv[0]);
+  strcpy (data->range, "range ");
+  strcpy (data->range, argv[0]);
 
-  sprintf (data->range, " ");
+  strcpy (data->range, " ");
 
-  sprintf (data->range, argv[1]);
-  sprintf (data->range, ";");
+  strcpy (data->range, argv[1]);
+  strcpy (data->range, ";");
 
   fputs (data->range, data->dhcpdconfig);
 }

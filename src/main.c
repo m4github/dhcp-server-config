@@ -9,6 +9,7 @@
  *
  */
 #include <stdio.h>
+#include <string.h>
 
 #include"dhcpd_conf.h"
 
@@ -19,8 +20,13 @@ main (int argc, char *argv)
 
   initfile (&data);
 
-  while (argv[0] != 'exit')
+  while (1)
+  {
+    if (!strcmp (&argv[1], "exit"))
+      break;
+
     getData (argc, &argv, &data);
+  }
 
   setData (&data);
 
