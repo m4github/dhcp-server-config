@@ -1,2 +1,2 @@
 all:
-	gcc src/*.c -o theconfig
+	gcc -g src/*.c -o theconfig
