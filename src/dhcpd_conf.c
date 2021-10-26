@@ -12,7 +12,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-  
+
 #include "dhcpd_conf.h"
 
 #define MAX_LEN 1024
@@ -38,17 +38,25 @@ initMem (struct  pool *data)
 void
 getData (int argc, char *argv[], struct pool *data)
 {
-  if (!strcmp (argv[1], "network") )
+  if (argc && !strcmp (argv[1], "network"))
   {
+    ARGC_COUNT_ERROR (argc);
+
     strcat (data->subnet, argv[2]);
     strcat (data->netmask, argv[3]);
   }
 
-  if (!strcmp (argv[1], "default-router") )
-    strcat (data->gateway, argv[2]);
-
-  if (!strcmp (argv[1], "dns-server") )
+  if (argc == 3 && !strcmp (argv[1], "default-router"))
   {
+    ARGC_COUNT_ERROR (argc);
+
+    strcat (data->gateway, argv[2]);
+  }
+
+  if (argc == 3 && !strcmp (argv[1], "dns-server"))
+  {
+    ARGC_COUNT_ERROR (argc);
+
     strcat (data->dns, argv[2]);
     //TODO do we need second dns?
   }

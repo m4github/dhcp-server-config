@@ -2,7 +2,7 @@
  * @file dhcpd_conf.h
  * @author Mohadeseh_Forghani (m4ghaniofficial@gmail.com)
  * @brief  A library to config the dhcp server with user data.
- * @version 0.2.2
+ * @version 0.3.2
  * @date 23 Oct 2021
  *
  * @copyright Copyright (c) 2021
@@ -17,6 +17,13 @@
  if(var == NULL && n > 0) \
   { \
     fprintf(stderr, "Couldn't allocate memory\n"); \
+    exit(EXIT_FAILURE); \
+  } \
+
+#define ARGC_COUNT_ERROR(arg)  \
+ if(arg < 4 || arg < 3) \
+  { \
+    fprintf(stderr, "Add more arguments\n"); \
     exit(EXIT_FAILURE); \
   } \
 
