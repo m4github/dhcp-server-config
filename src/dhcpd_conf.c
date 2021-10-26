@@ -20,8 +20,6 @@
 void
 initMem (struct  pool *data)
 {
-  MALLOC_AND_ERRCHECK (data->tmp, sizeof (char));
-
   MALLOC_AND_ERRCHECK (data->subnet, sizeof (char));
 
   MALLOC_AND_ERRCHECK (data->netmask, sizeof (char));
@@ -35,9 +33,12 @@ initMem (struct  pool *data)
   MALLOC_AND_ERRCHECK (data->dns, sizeof (char));
 }
 
-void
+void //TODO add reset
 getData (int argc, char *argv[], struct pool *data)
 {
+  if (argc && !strcmp (argv[1], "-reset"))
+    fclose (fopen ("/etc/dhcp/dhcpd.conf", "w"));
+
   if (argc && !strcmp (argv[1], "network"))
   {
     ARGC_COUNT_ERROR (argc);
@@ -63,40 +64,103 @@ getData (int argc, char *argv[], struct pool *data)
 }
 
 void
-setData (struct pool *data)
+initData (struct pool *data)
 {
-  sprintf (data->tmp, "subnet ");
-  strcat (data->tmp, data->subnet);
-  strcat (data->tmp, " netmask ");
-  strcat (data->tmp, data->netmask);
-  strcat (data->tmp, " { \n");
+  char *val;
+  MALLOC_AND_ERRCHECK (val, sizeof (char));
 
-  strcat (data->tmp, "option routers ");
-  strcat (data->tmp, data->gateway);
-  strcat (data->tmp, "; \n");
+  FILE *configInfo = fopen ("/etc/dhcp/config_info.txt", "r");
 
-  strcat (data->tmp, "option domain-name-servers ");
-  strcat (data->tmp, data->dns);
-  strcat (data->tmp, "; } \n");
+  if (configInfo == NULL)
+    exit (EXIT_FAILURE);
+
+  while (fgetc (configInfo) != EOF)
+  {
+    fscanf (configInfo, val);
+    data->subnet = val;
+
+    fscanf (configInfo, val);
+    data->netmask = val;
+
+    fscanf (configInfo, val);
+    data->gateway = val;
+
+    fscanf (configInfo, val);
+    data->dns = val;
+  }
+
+  fclose (configInfo);
+
+  free (val);
 }
 
 void
-pushData (struct pool *data)
+writeConfigFile (struct pool *data)
 {
+  char *tmp;
+  MALLOC_AND_ERRCHECK (tmp, sizeof (char));
+
   FILE *dhcpdconfig = fopen ("/etc/dhcp/dhcpd.conf", "w");
 
   if (dhcpdconfig == NULL)
     exit (EXIT_FAILURE);
 
-  fputs (data->tmp, dhcpdconfig);
+  sprintf (tmp, "subnet ");
+  strcat (tmp, data->subnet);
+  strcat (tmp, " netmask ");
+  strcat (tmp, data->netmask);
+  strcat (tmp, " { \n");
+
+  strcat (tmp, "option routers ");
+  strcat (tmp, data->gateway);
+  strcat (tmp, "; \n");
+
+  strcat (tmp, "option domain-name-servers ");
+  strcat (tmp, data->dns);
+  strcat (tmp, "; } \n");
+
+  fputs (tmp, dhcpdconfig);
 
   fclose (dhcpdconfig);
+
+  free (tmp);
+
+}
+
+void
+writeBackUpFile (struct pool *data)
+{
+  char *tmp;
+  MALLOC_AND_ERRCHECK (tmp, sizeof (char));
+
+  FILE *configInfo = fopen ("/etc/dhcp/config_info", "w");
+
+
+  if (configInfo == NULL)
+    exit (EXIT_FAILURE);
+
+  sprintf (tmp, data->subnet);
+  strcat (tmp, "  \n");
+
+  strcat (tmp, data->netmask);
+  strcat (tmp, "  \n");
+
+  strcat (tmp, data->gateway);
+  strcat (tmp, " \n");
+
+  strcat (tmp, data->dns);
+  strcat (tmp, " \n");
+
+  fputs (tmp, configInfo);
+
+  fclose (configInfo);
+
+  free (tmp);
 }
 
 void
 freeMem (struct  pool *data)
 {
-  free (data->tmp);
   free (data->subnet);
   free (data->netmask);
   //free (data->rangeUp);

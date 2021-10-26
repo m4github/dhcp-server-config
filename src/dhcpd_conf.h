@@ -29,8 +29,6 @@
 
 struct pool
 {
-  char *tmp;
-
   char *subnet;
 
   char *netmask;
@@ -42,15 +40,15 @@ struct pool
   char *gateway;
 
   char *dns;
-
-  char *configLoc;
 };
 
 void getData (int argc, char *argv[], struct pool *data);
 
-void setData (struct pool *data);
+void initData (struct pool *data);
 
-void pushData (struct pool *data);
+void writeConfigFile (struct pool *data);
+
+void writeBackUpFile (struct pool *data);
 
 void initMem (struct pool *data);
 
