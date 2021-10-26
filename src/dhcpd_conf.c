@@ -12,7 +12,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
+  
 #include "dhcpd_conf.h"
 
 #define MAX_LEN 1024
@@ -38,7 +38,7 @@ initMem (struct  pool *data)
 void
 getData (int argc, char *argv[], struct pool *data)
 {
-   if (!strcmp (argv[1], "network") )
+  if (!strcmp (argv[1], "network") )
   {
     strcat (data->subnet, argv[2]);
     strcat (data->netmask, argv[3]);
@@ -53,6 +53,7 @@ getData (int argc, char *argv[], struct pool *data)
     //TODO do we need second dns?
   }
 }
+
 void
 setData (struct pool *data)
 {
@@ -70,32 +71,19 @@ setData (struct pool *data)
   strcat (data->tmp, data->dns);
   strcat (data->tmp, "; } \n");
 }
-/*
+
 void
 pushData (struct pool *data)
 {
-  FILE *dhcpdconfig = fopen ("/etc/dhcp/dhcpd.conf", "r+");
+  FILE *dhcpdconfig = fopen ("/etc/dhcp/dhcpd.conf", "w");
+
+  if (dhcpdconfig == NULL)
+    exit (EXIT_FAILURE);
 
   fputs (data->tmp, dhcpdconfig);
 
   fclose (dhcpdconfig);
 }
-*/
-/*
-void
-getRange (int argc, char *argv[], struct pool *data)
-{
-  strcat (data->range, "range ");
-  strcat (data->range, argv[0]);
-
-  strcat (data->range, " ");
-
-  strcat (data->range, argv[1]);
-  strcat (data->range, ";");
-
-  fputs (data->range, data->dhcpdconfig);
-}
-*/
 
 void
 freeMem (struct  pool *data)
