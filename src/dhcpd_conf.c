@@ -2,7 +2,7 @@
  * @file dhcpd_conf.c
  * @author Mohadeseh_Forghani (m4ghaniofficial@gmail.com)
  * @brief config the dhcp server with user data.
- * @version 0.2.3
+ * @version 0.2.4
  * @date 23 Oct 2021
  *
  * @copyright Copyright (c) 2021
@@ -38,24 +38,19 @@ initMem (struct  pool *data)
 void
 getData (int argc, char *argv[], struct pool *data)
 {
-  switch ((unsigned long int)argv[1])
+   if (!strcmp (argv[1], "network") )
   {
-  case '1':// 'network':
     strcat (data->subnet, argv[2]);
     strcat (data->netmask, argv[3]);
-    break;
+  }
 
-  case '2': //default-router':
+  if (!strcmp (argv[1], "default-router") )
     strcat (data->gateway, argv[2]);
-    break;
 
-  case '3'://dns-server':
+  if (!strcmp (argv[1], "dns-server") )
+  {
     strcat (data->dns, argv[2]);
     //TODO do we need second dns?
-    break;
-
-  default:
-    break;
   }
 }
 void
