@@ -27,6 +27,7 @@
     exit(EXIT_FAILURE); \
   } \
 
+
 struct pool
 {
   char *subnet;
