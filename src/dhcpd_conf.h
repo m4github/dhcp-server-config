@@ -21,7 +21,7 @@
   } \
 
 #define ARGC_COUNT_ERROR(arg)  \
- if(arg < 4 || arg < 3) \
+ if(arg < 4 ) \
   { \
     fprintf(stderr, "Add more arguments\n"); \
     exit(EXIT_FAILURE); \

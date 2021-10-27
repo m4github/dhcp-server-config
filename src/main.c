@@ -21,16 +21,16 @@ main (int argc, char *argv[])
 
   initMem (&data);
 
-  initData (&data);
+ initData (&data);
 
-  if (argc && !strcmp (argv[1], "exit"))
-    return 0;
+ // if (argc && !strcmp (argv[1], "exit"))
+  //  return 0;
 
-  getData (argc, argv, &data);
+ getData (argc, argv, &data);
 
-  writeConfigFile (&data);
+writeConfigFile (&data);
 
-  writeBackUpFile (&data);
+//writeBackUpFile (&data);
 
 //TODO system ("sudo service isc-dhcp-server restart");
 
