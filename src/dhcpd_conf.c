@@ -40,8 +40,11 @@ getData (int argc, char *argv[], struct pool *data)
   if (argc && !strcmp (argv[1], "-reset"))
   {
     fclose (fopen ("/etc/dhcp/dhcpd.conf", "w"));
+    fclose (fopen ("/etc/dhcp/config_info.txt", "w"));
+
     exit (EXIT_FAILURE);
   }
+  
   if (argc == 4 && !strcmp (argv[1], "network"))
   {
     ARGC_COUNT_ERROR (argc);
