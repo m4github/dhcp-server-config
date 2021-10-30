@@ -21,8 +21,6 @@ main (int argc, char *argv[])
 
   initMem (&data);
 
-  writeBackUpFile (&data);
-
   initData (&data);
 
   if (argc && !strcmp (argv[1], "exit"))
@@ -34,7 +32,11 @@ main (int argc, char *argv[])
 
   writeBackUpFile (&data);
 
-//TODO system ("sudo service isc-dhcp-server restart");
+  if (system ("sudo service isc-dhcp-server restart") != 0)
+    {
+      fprintf (stderr, "complete the config file.\n");
+      exit (EXIT_FAILURE);
+    }
 
   freeMem (&data);
 

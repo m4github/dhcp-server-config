@@ -34,9 +34,9 @@ struct pool
 
   char *netmask;
 
-  //char *rangeUp;
+  char *rangeUp;
 
-  //char *rangeDown;
+  char *rangeDown;
 
   char *gateway;
 
