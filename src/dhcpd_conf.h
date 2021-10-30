@@ -20,13 +20,19 @@
     exit(EXIT_FAILURE); \
   } \
 
-#define ARGC_COUNT_ERROR(arg)  \
+#define ARGC_4COUNT_ERROR(arg)  \
  if(arg < 4 ) \
   { \
     fprintf(stderr, "Add more arguments\n"); \
     exit(EXIT_FAILURE); \
   } \
 
+#define ARGC_3COUNT_ERROR(arg)  \
+ if(arg < 3 ) \
+  { \
+    fprintf(stderr, "Add more arguments\n"); \
+    exit(EXIT_FAILURE); \
+  } \
 
 struct pool
 {

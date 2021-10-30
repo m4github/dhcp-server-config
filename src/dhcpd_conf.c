@@ -2,7 +2,7 @@
  * @file dhcpd_conf.c
  * @author Mohadeseh_Forghani (m4ghaniofficial@gmail.com)
  * @brief config the dhcp server with user data.
- * @version 0.6.5
+ * @version 0.6.7
  * @date 23 Oct 2021
  *
  * @copyright Copyright (c) 2021
@@ -44,38 +44,46 @@ getData (int argc, char *argv[], struct pool *data)
       exit (EXIT_FAILURE);
     }
 
-  if (argc == 4 && !strcmp (argv[1], "network"))
+  if (argc  && !strcmp (argv[1], "network"))
     {
-      ARGC_COUNT_ERROR (argc);
+      ARGC_4COUNT_ERROR (argc);
 
       snprintf (data->subnet, sizeof (argv[2])*MAX_LEN, "%s", argv[2]);
       snprintf (data->netmask, sizeof (argv[3])*MAX_LEN, "%s", argv[3]);
     }
 
-  if (argc == 4 && !strcmp (argv[1], "range"))
+  if (argc && !strcmp (argv[1], "range"))
     {
-      ARGC_COUNT_ERROR (argc);
+      ARGC_4COUNT_ERROR (argc);
 
       snprintf (data->rangeUp, sizeof (argv[2])*MAX_LEN, "%s", argv[2]);
       snprintf (data->rangeDown, sizeof (argv[3])*MAX_LEN, "%s", argv[3]);
     }
 
-  if (argc == 3  && !strcmp (argv[1], "default-router"))
-    snprintf (data->gateway, sizeof (argv[2])*MAX_LEN, "%s", argv[2]);
+  if (argc && !strcmp (argv[1], "default-router"))
+    {
+      ARGC_3COUNT_ERROR (argc);
 
-  if (argc == 3  && !strcmp (argv[1], "dns-server"))
-    snprintf (data->dns, sizeof (argv[2])*MAX_LEN, "%s", argv[2]);
+      snprintf (data->gateway, sizeof (argv[2])*MAX_LEN, "%s", argv[2]);
+    }
+
+  if (argc && !strcmp (argv[1], "dns-server"))
+    {
+      ARGC_3COUNT_ERROR (argc);
+
+      snprintf (data->dns, sizeof (argv[2])*MAX_LEN, "%s", argv[2]);
+    }
 }
 
 void
 initData (struct pool *data)
 {
   char *val = MALLOC_AND_ERRCHECK (val, sizeof (char));
-//TODO flag is the issue
-  FILE *configInfo = fopen ("/etc/dhcp/config_info.txt", "w+");
+
+  FILE *configInfo = fopen ("/etc/dhcp/config_info.txt", "r");
 
   if (configInfo == NULL)
-    exit (EXIT_FAILURE);
+    configInfo = fopen ("/etc/dhcp/config_info.txt", "w");
 
   fscanf (configInfo, "%s", val);
   snprintf (data->subnet, sizeof (val)*MAX_LEN, "%s", val);
