@@ -8,15 +8,29 @@ Use Makefile to build and debug the program.
 sudo ./theconfig [option] [arg1] [arg2]
 
 # options
--reset            erase the dhcpd.conf and config_info.txt files
+-reset
 
-exit             exit the program with no change in files
+erase the dhcpd.conf and config_info.txt files
 
-network          add 2 arguments after this option to ser subnet and netmask
 
-default-router   add gateway as an argument after this option
+exit
 
-dns-server       add dns as an argument after this option 
+exit the program with no change in files
+
+
+network
+
+add 2 arguments after this option to ser subnet and netmask
+
+default-router
+
+add gateway as an argument after this option
+
+
+dns-server
+
+add dns as an argument after this option 
+
 
 # notes
  -Do not forget to run the program by sudo access.
