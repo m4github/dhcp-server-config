@@ -10,55 +10,49 @@
  */
 #include <stdio.h>
 
+#define MAX_LEN 1024
+
 #if !defined(_DHCPD_CONF_H)
 #define _DHCPD_CONF_H
 
-#define MALLOC_AND_ERRCHECK(var, n)   var = (char *)malloc (sizeof (char) * MAX_LEN); \
- if(var == NULL && n > 0) \
+#define MALLOC_ERR(var,n)   var = (char *)malloc n*MAX_LEN); \
+if (var == NULL && n > 0) \
   { \
-    fprintf(stderr, "Couldn't allocate memory\n"); \
-    exit(EXIT_FAILURE); \
+fprintf (stderr, "Couldn't allocate memory\n");\
+exit (EXIT_FAILURE);\
   } \
+
+#define ARGUMENT_ALLERT \
+fprintf(stderr, "Add more arguments\n"); \
+    exit(EXIT_FAILURE); \
 
 #define ARGC_4COUNT_ERROR(arg)  \
  if(arg < 4 ) \
   { \
-    fprintf(stderr, "Add more arguments\n"); \
-    exit(EXIT_FAILURE); \
+   ARGUMENT_ALLERT; \
   } \
 
 #define ARGC_3COUNT_ERROR(arg)  \
  if(arg < 3 ) \
   { \
-    fprintf(stderr, "Add more arguments\n"); \
-    exit(EXIT_FAILURE); \
+       ARGUMENT_ALLERT; \
   } \
 
 struct pool
 {
   char *subnet;
-
   char *netmask;
-
   char *rangeUp;
-
   char *rangeDown;
-
   char *gateway;
-
   char *dns;
 };
 
 void getData (int argc, char *argv[], struct pool *data);
-
 void initData (struct pool *data);
-
 void writeConfigFile (struct pool *data);
-
 void writeBackUpFile (struct pool *data);
-
 void initMem (struct pool *data);
-
 void freeMem (struct pool *data);
 
 #endif

@@ -20,7 +20,6 @@ main (int argc, char *argv[])
   struct pool data;
 
   initMem (&data);
-
   initData (&data);
 
   if (argc && !strcmp (argv[1], "exit"))
@@ -29,7 +28,6 @@ main (int argc, char *argv[])
   getData (argc, argv, &data);
 
   writeConfigFile (&data);
-
   writeBackUpFile (&data);
 
   if (system ("sudo service isc-dhcp-server restart") != 0)
