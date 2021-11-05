@@ -10,17 +10,10 @@
  */
 #include <stdio.h>
 
-#define MAX_LEN 1024
+#define MAX_LEN 15
 
 #if !defined(_DHCPD_CONF_H)
 #define _DHCPD_CONF_H
-
-#define MALLOC_ERR(var,n)   var = (char *)malloc n*MAX_LEN); \
-if (var == NULL && n > 0) \
-  { \
-fprintf (stderr, "Couldn't allocate memory\n");\
-exit (EXIT_FAILURE);\
-  } \
 
 #define ARGUMENT_ALLERT \
 fprintf(stderr, "Add more arguments\n"); \
@@ -40,19 +33,17 @@ fprintf(stderr, "Add more arguments\n"); \
 
 struct pool
 {
-  char *subnet;
-  char *netmask;
-  char *rangeUp;
-  char *rangeDown;
-  char *gateway;
-  char *dns;
+  char subnet[MAX_LEN];
+  char netmask[MAX_LEN];
+  char rangeUp[MAX_LEN];
+  char rangeDown[MAX_LEN];
+  char gateway[MAX_LEN];
+  char dns[MAX_LEN];
 };
 
-void getData (int argc, char *argv[], struct pool *data);
-void initData (struct pool *data);
-void writeConfigFile (struct pool *data);
-void writeBackUpFile (struct pool *data);
-void initMem (struct pool *data);
-void freeMem (struct pool *data);
+void get_data (int argc, char *argv[], struct pool *data);
+void init_data (struct pool *data);
+void write_config_file (struct pool *data);
+void write_backup_file (struct pool *data);
 
 #endif

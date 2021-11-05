@@ -12,31 +12,28 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include"dhcpd_conf.h"
+#include "dhcpd_conf.h"
 
 int
 main (int argc, char *argv[])
 {
   struct pool data;
 
-  initMem (&data);
-  initData (&data);
+  init_data (&data);
 
   if (argc && !strcmp (argv[1], "exit"))
     return 0;
 
-  getData (argc, argv, &data);
+  get_data (argc, argv, &data);
 
-  writeConfigFile (&data);
-  writeBackUpFile (&data);
+  write_config_file (&data);
+  write_backup_file (&data);
 
-  if (system ("sudo service isc-dhcp-server restart") != 0)
+  if (system ("service isc-dhcp-server restart") != 0)
     {
       fprintf (stderr, "complete the config file.\n");
       exit (EXIT_FAILURE);
     }
-
-  freeMem (&data);
 
   return 0;
 }

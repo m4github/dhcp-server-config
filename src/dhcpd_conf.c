@@ -16,27 +16,24 @@
 #include "dhcpd_conf.h"
 
 void
-initMem (struct  pool *data)
-{
-  MALLOC_AND_ERRCHECK (data->subnet, sizeof (char));
-  MALLOC_AND_ERRCHECK (data->netmask, sizeof (char));
-  MALLOC_AND_ERRCHECK (data->rangeUp, sizeof (char));
-  MALLOC_AND_ERRCHECK (data->rangeDown, sizeof (char));
-  MALLOC_AND_ERRCHECK (data->gateway, sizeof (char));
-  MALLOC_AND_ERRCHECK (data->dns, sizeof (char));
-}
-
-void
-getData (int argc, char *argv[], struct pool *data)
+get_data (int argc, char *argv[], struct pool *data)
 {
   if (argc && !strcmp (argv[1], "-reset"))
     {
-      fclose (fopen ("/etc/dhcp/dhcpd.conf", "w"));
-      fclose (fopen ("/etc/dhcp/config_info.txt", "w"));
+      FILE *tmp1=fopen ("/etc/dhcp/dhcpd.conf", "w");
+      FILE *tmp2=fopen ("/etc/dhcp/config_info.txt", "w");
+
+      if ( tmp1 && tmp2)
+      {
+        fclose(tmp1);
+        fclose (tmp2);
+        exit(EXIT_SUCCESS);
+      }
+      else
       exit (EXIT_FAILURE);
     }
 
-  if (argc  && !strcmp (argv[1], "network"))
+  else if (argc  && !strcmp (argv[1], "network"))
     {
       ARGC_4COUNT_ERROR (argc);
 
@@ -44,7 +41,7 @@ getData (int argc, char *argv[], struct pool *data)
       snprintf (data->netmask, strlen (argv[3]), "%s", argv[3]);
     }
 
-  if (argc && !strcmp (argv[1], "range"))
+  else if (argc && !strcmp (argv[1], "range"))
     {
       ARGC_4COUNT_ERROR (argc);
 
@@ -52,14 +49,14 @@ getData (int argc, char *argv[], struct pool *data)
       snprintf (data->rangeDown, strlen (argv[3]), "%s", argv[3]);
     }
 
-  if (argc && !strcmp (argv[1], "default-router"))
+  else if (argc && !strcmp (argv[1], "default-router"))
     {
       ARGC_3COUNT_ERROR (argc);
 
       snprintf (data->gateway, strlen (argv[2]), "%s", argv[2]);
     }
 
-  if (argc && !strcmp (argv[1], "dns-server"))
+  else if (argc && !strcmp (argv[1], "dns-server"))
     {
       ARGC_3COUNT_ERROR (argc);
 
@@ -68,9 +65,9 @@ getData (int argc, char *argv[], struct pool *data)
 }
 
 void
-initData (struct pool *data)
+init_data (struct pool *data)
 {
-  char *val = MALLOC_AND_ERRCHECK (val, sizeof (char));
+  char *val = (char *)malloc(sizeof(char)*1024);
 
   FILE *configInfo = fopen ("/etc/dhcp/config_info.txt", "r");
   if (configInfo == NULL)
@@ -100,84 +97,74 @@ initData (struct pool *data)
 }
 
 void
-writeConfigFile (struct pool *data)
+write_config_file (struct pool *data)
 {
-  char *tmp =  MALLOC_AND_ERRCHECK (tmp, sizeof (char));
-
+  char *buffer = (char *)malloc (sizeof (char)*1024);
+ 
   FILE *dhcpdconfig = fopen ("/etc/dhcp/dhcpd.conf", "w");
   if (dhcpdconfig == NULL)
     exit (EXIT_FAILURE);
 
-  snprintf (tmp, MAX_LEN, "%s", "subnet ");
-  strncat (tmp, data->subnet, strlen (data->subnet));
+  snprintf (buffer, MAX_LEN, "%s", "subnet ");
+  strncat (buffer, data->subnet, strlen (data->subnet));
 
-  strncat (tmp, " netmask ", MAX_LEN);
-  strncat (tmp, data->netmask, strlen (data->netmask));
-  strncat (tmp, " { \n", MAX_LEN);
+  strncat (buffer, " netmask ", MAX_LEN);
+  strncat (buffer, data->netmask, strlen (data->netmask));
+  strncat (buffer, " { \n", MAX_LEN);
 
-  strncat (tmp, "range ", MAX_LEN);
-  strncat (tmp, data->rangeUp, strlen (data->rangeUp));
-  strncat (tmp, " ", MAX_LEN);
+  strncat (buffer, "range ", MAX_LEN);
+  strncat (buffer, data->rangeUp, strlen (data->rangeUp));
+  strncat (buffer, " ", MAX_LEN);
 
-  strncat (tmp, data->rangeDown, strlen (data->rangeDown));
-  strncat (tmp, "; \n", MAX_LEN);
+  strncat (buffer, data->rangeDown, strlen (data->rangeDown));
+  strncat (buffer, "; \n", MAX_LEN);
 
-  strncat (tmp, "option routers ", MAX_LEN);
-  strncat (tmp, data->gateway, strlen (data->gateway));
-  strncat (tmp, "; \n", MAX_LEN);
+  strncat (buffer, "option routers", MAX_LEN);
+  strncat (buffer, " ", MAX_LEN);
+  strncat (buffer, data->gateway, strlen (data->gateway));
+  strncat (buffer, "; \n", MAX_LEN);
 
-  strncat (tmp, "option domain-name-servers ", MAX_LEN);
-  strncat (tmp, data->dns, strlen (data->dns));
-  strncat (tmp, "; } \n", MAX_LEN);
+  strncat (buffer, "option domain-name-servers ", MAX_LEN);
+  strncat (buffer, data->dns, strlen (data->dns));
+  strncat (buffer, "; } \n", MAX_LEN);
 
-  fputs (tmp, dhcpdconfig);
+  fputs (buffer, dhcpdconfig);
 
   fclose (dhcpdconfig);
 
-  free (tmp);
+  free(buffer);
 }
 
 void
-writeBackUpFile (struct pool *data)
+write_backup_file (struct pool *data) 
 {
-  char *tmp =  MALLOC_AND_ERRCHECK (tmp, sizeof (char));
+  char *buffer = (char *)malloc (sizeof(char)*1024);
 
   FILE *configInfo = fopen ("/etc/dhcp/config_info.txt", "w");
   if (configInfo == NULL)
     exit (EXIT_FAILURE);
 
-  snprintf (tmp, strlen (data->subnet), "%s", data->subnet);
-  strncat (tmp, "  \n", MAX_LEN);
+  snprintf (buffer, strlen (data->subnet), "%s", data->subnet);
+  strncat (buffer, "  \n", MAX_LEN);
 
-  strncat (tmp, data->netmask, strlen (data->netmask));
-  strncat (tmp, "  \n", MAX_LEN);
+  strncat (buffer, data->netmask, strlen (data->netmask));
+  strncat (buffer, "  \n", MAX_LEN);
 
-  strncat (tmp, data->rangeUp, strlen (data->rangeUp));
-  strncat (tmp, "  \n", MAX_LEN);
+  strncat (buffer, data->rangeUp, strlen (data->rangeUp));
+  strncat (buffer, "  \n", MAX_LEN);
 
-  strncat (tmp, data->rangeDown, strlen (data->rangeDown));
-  strncat (tmp, "  \n", MAX_LEN);
+  strncat (buffer, data->rangeDown, strlen (data->rangeDown));
+  strncat (buffer, "  \n", MAX_LEN);
 
-  strncat (tmp, data->gateway, strlen (data->gateway));
-  strncat (tmp, " \n", MAX_LEN);
+  strncat (buffer, data->gateway, strlen (data->gateway));
+  strncat (buffer, " \n", MAX_LEN);
 
-  strncat (tmp, data->dns, strlen (data->dns));
-  strncat (tmp, " \n", MAX_LEN);
+  strncat (buffer, data->dns, strlen (data->dns));
+  strncat (buffer, " \n", MAX_LEN);
 
-  fputs (tmp, configInfo);
+  fputs (buffer, configInfo);
 
   fclose (configInfo);
-
-  free (tmp);
+  free(buffer);
 }
 
-void
-freeMem (struct  pool *data)
-{
-  free (data->subnet);
-  free (data->netmask);
-  free (data->rangeUp);
-  free (data->rangeDown);
-  free (data->gateway);
-  free (data->dns);
-}
