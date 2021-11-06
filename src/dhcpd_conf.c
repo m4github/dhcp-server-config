@@ -20,17 +20,17 @@ get_data (int argc, char *argv[], struct pool *data)
 {
   if (argc && !strcmp (argv[1], "-reset"))
     {
-      FILE *tmp1=fopen ("/etc/dhcp/dhcpd.conf", "w");
-      FILE *tmp2=fopen ("/etc/dhcp/config_info.txt", "w");
+      FILE *tmp1 = fopen ("/etc/dhcp/dhcpd.conf", "w");
+      FILE *tmp2 = fopen ("/etc/dhcp/config_info.txt", "w");
 
-      if ( tmp1 && tmp2)
-      {
-        fclose(tmp1);
-        fclose (tmp2);
-        exit(EXIT_SUCCESS);
-      }
+      if (tmp1 && tmp2)
+        {
+          fclose (tmp1);
+          fclose (tmp2);
+          exit (EXIT_SUCCESS);
+        }
       else
-      exit (EXIT_FAILURE);
+        exit (EXIT_FAILURE);
     }
 
   else if (argc  && !strcmp (argv[1], "network"))
@@ -67,7 +67,7 @@ get_data (int argc, char *argv[], struct pool *data)
 void
 init_data (struct pool *data)
 {
-  char *val = (char *)malloc(sizeof(char)*1024);
+  char *val = (char *)malloc (sizeof (char) * 1024);
 
   FILE *configInfo = fopen ("/etc/dhcp/config_info.txt", "r");
   if (configInfo == NULL)
@@ -86,7 +86,7 @@ init_data (struct pool *data)
   snprintf (data->rangeDown, strlen (val), "%s", val);
 
   fscanf (configInfo, "%s", val);
-  snprintf (data->gateway,  strlen (val), "%s", val);
+  snprintf (data->gateway, strlen (val), "%s", val);
 
   fscanf (configInfo, "%s", val);
   snprintf (data->dns, strlen (val), "%s", val);
@@ -99,8 +99,8 @@ init_data (struct pool *data)
 void
 write_config_file (struct pool *data)
 {
-  char *buffer = (char *)malloc (sizeof (char)*1024);
- 
+  char *buffer = (char *)malloc (sizeof (char) * 1024);
+
   FILE *dhcpdconfig = fopen ("/etc/dhcp/dhcpd.conf", "w");
   if (dhcpdconfig == NULL)
     exit (EXIT_FAILURE);
@@ -119,26 +119,25 @@ write_config_file (struct pool *data)
   strncat (buffer, data->rangeDown, strlen (data->rangeDown));
   strncat (buffer, "; \n", MAX_LEN);
 
-  strncat (buffer, "option routers", MAX_LEN);
-  strncat (buffer, " ", MAX_LEN);
+  strncat (buffer, "option routers ", MAX_LEN);
   strncat (buffer, data->gateway, strlen (data->gateway));
   strncat (buffer, "; \n", MAX_LEN);
 
   strncat (buffer, "option domain-name-servers ", MAX_LEN);
   strncat (buffer, data->dns, strlen (data->dns));
-  strncat (buffer, "; } \n", MAX_LEN);
+  strncat (buffer, "; }\n", MAX_LEN);
 
   fputs (buffer, dhcpdconfig);
 
   fclose (dhcpdconfig);
 
-  free(buffer);
+  free (buffer);
 }
 
 void
-write_backup_file (struct pool *data) 
+write_backup_file (struct pool *data)
 {
-  char *buffer = (char *)malloc (sizeof(char)*1024);
+  char *buffer = (char *)malloc (sizeof (char) * 1024);
 
   FILE *configInfo = fopen ("/etc/dhcp/config_info.txt", "w");
   if (configInfo == NULL)
@@ -165,6 +164,7 @@ write_backup_file (struct pool *data)
   fputs (buffer, configInfo);
 
   fclose (configInfo);
-  free(buffer);
+
+  free (buffer);
 }
 
