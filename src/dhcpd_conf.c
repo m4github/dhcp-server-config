@@ -2,7 +2,7 @@
  * @file dhcpd_conf.c
  * @author Mohadeseh_Forghani (m4ghaniofficial@gmail.com)
  * @brief config the dhcp server with user data.
- * @version 0.6.7
+ * @version 0.6.8
  * @date 23 Oct 2021
  *
  * @copyright Copyright (c) 2021
@@ -20,58 +20,107 @@ get_data (int argc, char *argv[], struct pool *data)
 {
   if (argc && !strcmp (argv[1], "-reset"))
     {
-      FILE *tmp1 = fopen ("/etc/dhcp/dhcpd.conf", "w");
-      FILE *tmp2 = fopen ("/etc/dhcp/config_info.txt", "w");
+      FILE *pointer1 = fopen ("/etc/dhcp/dhcpd.conf", "w");
+      FILE *pointer2 = fopen ("/etc/dhcp/config_info.txt", "w");
 
-      if (tmp1 && tmp2)
+      if (pointer1)
         {
-          fclose (tmp1);
-          fclose (tmp2);
+          fclose (pointer1);
+
+          if (pointer2)
+            fclose (pointer2);
+          else
+            exit (EXIT_FAILURE);
+
           exit (EXIT_SUCCESS);
         }
       else
-        exit (EXIT_FAILURE);
+        fclose (pointer2);
+      exit (EXIT_FAILURE);
+    }
+
+  else if (argc && !strcmp (argv[1], "exit"))
+    exit (EXIT_SUCCESS);
+
+  else if (argc && !strcmp (argv[1], "ip dhcp pool"))
+    {
+      if (argc < 3)
+        {
+          fprintf (stderr, "Add more arguments\n");
+          exit (EXIT_FAILURE);
+        }
+      snprintf (data->name, strlen (argv[2]), "%s", argv[2]);
     }
 
   else if (argc  && !strcmp (argv[1], "network"))
     {
-      ARGC_4COUNT_ERROR (argc);
-
+      if (argc < 4)
+        {
+          fprintf (stderr, "Add more arguments\n");
+          exit (EXIT_FAILURE);
+        }
       snprintf (data->subnet, strlen (argv[2]), "%s", argv[2]);
       snprintf (data->netmask, strlen (argv[3]), "%s", argv[3]);
     }
 
   else if (argc && !strcmp (argv[1], "range"))
     {
-      ARGC_4COUNT_ERROR (argc);
-
+      if (argc < 4)
+        {
+          fprintf (stderr, "Add more arguments\n");
+          exit (EXIT_FAILURE);
+        }
       snprintf (data->rangeUp, strlen (argv[2]), "%s", argv[2]);
       snprintf (data->rangeDown, strlen (argv[3]), "%s", argv[3]);
     }
 
   else if (argc && !strcmp (argv[1], "default-router"))
     {
-      ARGC_3COUNT_ERROR (argc);
-
+      if (argc < 3)
+        {
+          fprintf (stderr, "Add more arguments\n");
+          exit (EXIT_FAILURE);
+        }
       snprintf (data->gateway, strlen (argv[2]), "%s", argv[2]);
     }
 
   else if (argc && !strcmp (argv[1], "dns-server"))
     {
-      ARGC_3COUNT_ERROR (argc);
-
+      if (argc < 3)
+        {
+          fprintf (stderr, "Add more arguments\n");
+          exit (EXIT_FAILURE);
+        }
       snprintf (data->dns, strlen (argv[2]), "%s", argv[2]);
+    }
+
+  else
+    {
+      fprintf (stderr, "Argument is not defined.\n");
+      exit (EXIT_FAILURE);
     }
 }
 
 void
 init_data (struct pool *data)
 {
-  char *val = (char *)malloc (sizeof (char) * 1024);
+  char *val = (char *)malloc (sizeof (char) * 2048);
+  if (val == NULL)
+    {
+      fprintf (stderr, "couldnt allocate memory.");
+      exit (EXIT_FAILURE);
+    }
 
   FILE *configInfo = fopen ("/etc/dhcp/config_info.txt", "r");
   if (configInfo == NULL)
-    return;
+    {
+      fprintf (stderr, "Failed to open config_info file. please try again.\n");
+      if (fopen ("/etc/dhcp/config_info.txt", "w") == NULL)
+        {
+          fprintf (stderr, "Failed to open config_info file.\n");
+          exit (EXIT_FAILURE);
+        }
+    }
 
   fscanf (configInfo, "%s", val);
   snprintf (data->subnet, strlen (val), "%s", val);
@@ -99,34 +148,38 @@ init_data (struct pool *data)
 void
 write_config_file (struct pool *data)
 {
-  char *buffer = (char *)malloc (sizeof (char) * 1024);
+  char *buffer = (char *)malloc (sizeof (char) * 2048);
+  if (buffer == NULL)
+    {
+      fprintf (stderr, "couldnt allocate memory.");
+      exit (EXIT_FAILURE);
+    }
 
   FILE *dhcpdconfig = fopen ("/etc/dhcp/dhcpd.conf", "w");
   if (dhcpdconfig == NULL)
     exit (EXIT_FAILURE);
 
-  snprintf (buffer, MAX_LEN, "%s", "subnet ");
+  snprintf (buffer, 8, "%s", "subnet ");
   strncat (buffer, data->subnet, strlen (data->subnet));
 
-  strncat (buffer, " netmask ", MAX_LEN);
+  strncat (buffer, " netmask ", 10);
   strncat (buffer, data->netmask, strlen (data->netmask));
-  strncat (buffer, " { \n", MAX_LEN);
+  strncat (buffer, "{\n", MAX_LEN);
 
-  strncat (buffer, "range ", MAX_LEN);
+  strncat (buffer, "range ", 7);
   strncat (buffer, data->rangeUp, strlen (data->rangeUp));
   strncat (buffer, " ", MAX_LEN);
 
   strncat (buffer, data->rangeDown, strlen (data->rangeDown));
-  strncat (buffer, "; \n", MAX_LEN);
+  strncat (buffer, ";\n", MAX_LEN);
 
-  strncat (buffer, "option routers ", MAX_LEN);
+  strncat (buffer, "option routers ", 16);
   strncat (buffer, data->gateway, strlen (data->gateway));
-  strncat (buffer, "; \n", MAX_LEN);
+  strncat (buffer, ";\n", MAX_LEN);
 
-  strncat (buffer, "option domain-name-servers ", MAX_LEN);
+  strncat (buffer, "option domain-name-servers ", 28);
   strncat (buffer, data->dns, strlen (data->dns));
-  strncat (buffer, "; }\n", MAX_LEN);
-
+  strncat (buffer, ";}\n", MAX_LEN+1);
   fputs (buffer, dhcpdconfig);
 
   fclose (dhcpdconfig);
@@ -137,29 +190,34 @@ write_config_file (struct pool *data)
 void
 write_backup_file (struct pool *data)
 {
-  char *buffer = (char *)malloc (sizeof (char) * 1024);
+  char *buffer = (char *)malloc (sizeof (char) * 2048);
+  if (buffer == NULL)
+    {
+      fprintf (stderr, "couldnt allocate memory.");
+      exit (EXIT_FAILURE);
+    }
 
   FILE *configInfo = fopen ("/etc/dhcp/config_info.txt", "w");
   if (configInfo == NULL)
     exit (EXIT_FAILURE);
 
   snprintf (buffer, strlen (data->subnet), "%s", data->subnet);
-  strncat (buffer, "  \n", MAX_LEN);
+  strncat (buffer, "\n", MAX_LEN);
 
   strncat (buffer, data->netmask, strlen (data->netmask));
-  strncat (buffer, "  \n", MAX_LEN);
+  strncat (buffer, "\n", MAX_LEN);
 
   strncat (buffer, data->rangeUp, strlen (data->rangeUp));
-  strncat (buffer, "  \n", MAX_LEN);
+  strncat (buffer, "\n", MAX_LEN);
 
   strncat (buffer, data->rangeDown, strlen (data->rangeDown));
-  strncat (buffer, "  \n", MAX_LEN);
+  strncat (buffer, "\n", MAX_LEN);
 
   strncat (buffer, data->gateway, strlen (data->gateway));
-  strncat (buffer, " \n", MAX_LEN);
+  strncat (buffer, "\n", MAX_LEN);
 
   strncat (buffer, data->dns, strlen (data->dns));
-  strncat (buffer, " \n", MAX_LEN);
+  strncat (buffer, "\n", MAX_LEN);
 
   fputs (buffer, configInfo);
 
