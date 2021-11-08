@@ -141,8 +141,7 @@ write_config_file (struct pool *data)
 
   snprintf (buffer, 8, "%s", "subnet ");
   strncat (buffer, data->subnet, strlen (data->subnet));
-  printf ("%d\n", strlen (data->subnet));
-  printf ("%s\n", buffer);
+
   strncat (buffer, " netmask ", 10);
   strncat (buffer, data->netmask, strlen (data->netmask));
   strncat (buffer, "{\n", MAX_LEN);
@@ -185,8 +184,7 @@ write_backup_file (struct pool *data)
 
   snprintf (buffer, strlen (data->subnet), "%s", data->subnet);
   strncat (buffer, "\n", MAX_LEN);
-  printf ("%d\n", strlen (data->subnet));
-  printf ("%s\n", buffer);
+
   strncat (buffer, data->netmask, strlen (data->netmask));
   strncat (buffer, "\n", MAX_LEN);
 
