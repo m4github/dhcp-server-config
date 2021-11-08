@@ -49,7 +49,7 @@ get_data (int argc, char *argv[], struct pool *data)
           fprintf (stderr, "Add more arguments\n");
           exit (EXIT_FAILURE);
         }
-      snprintf (data->name, sizeof (argv[2]), "%s", argv[2]);
+      snprintf (data->name, strlen (argv[2]), "%s", argv[2]);
     }
 
   else if (argc  && !strcmp (argv[1], "network"))
@@ -59,8 +59,8 @@ get_data (int argc, char *argv[], struct pool *data)
           fprintf (stderr, "Add more arguments\n");
           exit (EXIT_FAILURE);
         }
-      snprintf (data->subnet, sizeof (argv[2]), "%s", argv[2]);
-      snprintf (data->netmask, sizeof (argv[3]), "%s", argv[3]);
+      snprintf (data->subnet, strlen (argv[2]) + 1, "%s", argv[2]);
+      snprintf (data->netmask, strlen (argv[3]) + 1, "%s", argv[3]);
     }
 
   else if (argc && !strcmp (argv[1], "range"))
@@ -70,8 +70,8 @@ get_data (int argc, char *argv[], struct pool *data)
           fprintf (stderr, "Add more arguments\n");
           exit (EXIT_FAILURE);
         }
-      snprintf (data->rangeUp, sizeof (argv[2]), "%s", argv[2]);
-      snprintf (data->rangeDown, sizeof (argv[3]), "%s", argv[3]);
+      snprintf (data->rangeUp, strlen (argv[2]) + 1, "%s", argv[2]);
+      snprintf (data->rangeDown, strlen (argv[3]) + 1, "%s", argv[3]);
     }
 
   else if (argc && !strcmp (argv[1], "default-router"))
@@ -81,7 +81,7 @@ get_data (int argc, char *argv[], struct pool *data)
           fprintf (stderr, "Add more arguments\n");
           exit (EXIT_FAILURE);
         }
-      snprintf (data->gateway, sizeof (argv[2]), "%s", argv[2]);
+      snprintf (data->gateway, strlen (argv[2]) + 1, "%s", argv[2]);
     }
 
   else if (argc && !strcmp (argv[1], "dns-server"))
@@ -91,7 +91,7 @@ get_data (int argc, char *argv[], struct pool *data)
           fprintf (stderr, "Add more arguments\n");
           exit (EXIT_FAILURE);
         }
-      snprintf (data->dns, sizeof (argv[2]), "%s", argv[2]);
+      snprintf (data->dns, strlen (argv[2]) + 1, "%s", argv[2]);
     }
 
   else
@@ -140,25 +140,26 @@ write_config_file (struct pool *data)
     exit (EXIT_FAILURE);
 
   snprintf (buffer, 8, "%s", "subnet ");
-  strncat (buffer, data->subnet, sizeof (data->subnet));
-
+  strncat (buffer, data->subnet, strlen (data->subnet));
+  printf ("%d\n", strlen (data->subnet));
+  printf ("%s\n", buffer);
   strncat (buffer, " netmask ", 10);
-  strncat (buffer, data->netmask, sizeof (data->netmask));
+  strncat (buffer, data->netmask, strlen (data->netmask));
   strncat (buffer, "{\n", MAX_LEN);
 
   strncat (buffer, "range ", 7);
-  strncat (buffer, data->rangeUp, sizeof (data->rangeUp));
+  strncat (buffer, data->rangeUp, strlen (data->rangeUp));
   strncat (buffer, " ", MAX_LEN);
 
-  strncat (buffer, data->rangeDown, sizeof (data->rangeDown));
+  strncat (buffer, data->rangeDown, strlen (data->rangeDown));
   strncat (buffer, ";\n", MAX_LEN);
 
   strncat (buffer, "option routers ", 16);
-  strncat (buffer, data->gateway, sizeof (data->gateway));
+  strncat (buffer, data->gateway, strlen (data->gateway));
   strncat (buffer, ";\n", MAX_LEN);
 
   strncat (buffer, "option domain-name-servers ", 28);
-  strncat (buffer, data->dns, sizeof (data->dns));
+  strncat (buffer, data->dns, strlen (data->dns));
   strncat (buffer, ";}", MAX_LEN);
 
   fputs (buffer, dhcpdconfig);
@@ -182,22 +183,23 @@ write_backup_file (struct pool *data)
   if (configInfo == NULL)
     exit (EXIT_FAILURE);
 
-  snprintf (buffer, sizeof (data->subnet), "%s", data->subnet);
+  snprintf (buffer, strlen (data->subnet), "%s", data->subnet);
+  strncat (buffer, "\n", MAX_LEN);
+  printf ("%d\n", strlen (data->subnet));
+  printf ("%s\n", buffer);
+  strncat (buffer, data->netmask, strlen (data->netmask));
   strncat (buffer, "\n", MAX_LEN);
 
-  strncat (buffer, data->netmask, sizeof (data->netmask));
+  strncat (buffer, data->rangeUp, strlen (data->rangeUp));
   strncat (buffer, "\n", MAX_LEN);
 
-  strncat (buffer, data->rangeUp, sizeof (data->rangeUp));
+  strncat (buffer, data->rangeDown, strlen (data->rangeDown));
   strncat (buffer, "\n", MAX_LEN);
 
-  strncat (buffer, data->rangeDown, sizeof (data->rangeDown));
+  strncat (buffer, data->gateway, strlen (data->gateway));
   strncat (buffer, "\n", MAX_LEN);
 
-  strncat (buffer, data->gateway, sizeof (data->gateway));
-  strncat (buffer, "\n", MAX_LEN);
-
-  strncat (buffer, data->dns, sizeof (data->dns));
+  strncat (buffer, data->dns, strlen (data->dns));
   strncat (buffer, "\n", MAX_LEN);
 
   fputs (buffer, configInfo);
