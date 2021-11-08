@@ -27,7 +27,7 @@ struct pool
   char gateway[IP_LEN];
   char dns[IP_LEN];
 };
-
+int argument_counter (int argc, int count);
 void get_data (int argc, char *argv[], struct pool *data);
 void init_data (struct pool *data);
 void write_config_file (struct pool *data);

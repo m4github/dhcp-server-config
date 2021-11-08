@@ -15,6 +15,18 @@
 
 #include "dhcpd_conf.h"
 
+int
+argument_counter (int argc, int count)
+{
+  if (argc < count)
+    {
+      fprintf (stderr, "Add more arguments\n");
+      return 1;
+    }
+  else
+    return 0;
+}
+
 void
 get_data (int argc, char *argv[], struct pool *data)
 {
@@ -44,53 +56,43 @@ get_data (int argc, char *argv[], struct pool *data)
 
   else if (argc && !strcmp (argv[1], "ip dhcp pool"))
     {
-      if (argc < 3)
-        {
-          fprintf (stderr, "Add more arguments\n");
-          exit (EXIT_FAILURE);
-        }
+      if (argument_counter (argc, 3))
+        exit (EXIT_FAILURE);
+
       snprintf (data->name, strlen (argv[2]), "%s", argv[2]);
     }
 
   else if (argc  && !strcmp (argv[1], "network"))
     {
-      if (argc < 4)
-        {
-          fprintf (stderr, "Add more arguments\n");
-          exit (EXIT_FAILURE);
-        }
+      if (argument_counter (argc, 4))
+        exit (EXIT_FAILURE);
+
       snprintf (data->subnet, strlen (argv[2]) + 1, "%s", argv[2]);
       snprintf (data->netmask, strlen (argv[3]) + 1, "%s", argv[3]);
     }
 
   else if (argc && !strcmp (argv[1], "range"))
     {
-      if (argc < 4)
-        {
-          fprintf (stderr, "Add more arguments\n");
-          exit (EXIT_FAILURE);
-        }
+      if (argument_counter (argc, 4))
+        exit (EXIT_FAILURE);
+
       snprintf (data->rangeUp, strlen (argv[2]) + 1, "%s", argv[2]);
       snprintf (data->rangeDown, strlen (argv[3]) + 1, "%s", argv[3]);
     }
 
   else if (argc && !strcmp (argv[1], "default-router"))
     {
-      if (argc < 3)
-        {
-          fprintf (stderr, "Add more arguments\n");
-          exit (EXIT_FAILURE);
-        }
+      if (argument_counter (argc, 3))
+        exit (EXIT_FAILURE);
+
       snprintf (data->gateway, strlen (argv[2]) + 1, "%s", argv[2]);
     }
 
   else if (argc && !strcmp (argv[1], "dns-server"))
     {
-      if (argc < 3)
-        {
-          fprintf (stderr, "Add more arguments\n");
-          exit (EXIT_FAILURE);
-        }
+      if (argument_counter (argc, 3))
+        exit (EXIT_FAILURE);
+
       snprintf (data->dns, strlen (argv[2]) + 1, "%s", argv[2]);
     }
 
