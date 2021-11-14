@@ -8,10 +8,6 @@
  * @copyright Copyright (c) 2021
  *
  */
-#include <errno.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 
 #include "dhcpd_conf.h"
 
@@ -25,6 +21,42 @@ argument_counter (int argc, int count)
     }
   else
     return 0;
+}
+
+void
+init_data (struct pool *data, struct listhead head)
+{
+  FILE *configInfo = fopen ("/etc/dhcp/config_info.txt", "r");
+  if (configInfo == NULL)
+    {
+      fprintf (stderr, "Failed to open config_info file. please try again.\n");
+      if (fopen ("/etc/dhcp/config_info.txt", "w") == NULL)
+        {
+          fprintf (stderr, "Failed to open config_info file.\n");
+          exit (EXIT_FAILURE);
+        }
+    }
+  //TODO name nodes
+  data = malloc (sizeof (struct pool));//TODO move it
+  if (LIST_EMPTY (&head))
+    {
+      LIST_INIT (&head);
+      LIST_INSERT_HEAD (&head, data, next);
+      while (configInfo)
+        {
+          fscanf (configInfo, "%s", data->name);
+          fscanf (configInfo, "%s", data->subnet);
+          fscanf (configInfo, "%s", data->netmask);
+          fscanf (configInfo, "%s", data->rangeUp);
+          fscanf (configInfo, "%s", data->rangeDown);
+          fscanf (configInfo, "%s", data->gateway);
+          fscanf (configInfo, "%s", data->dns);
+
+          struct pool *data = malloc (sizeof (struct pool));
+          TAILQ_INSERT_TAIL (head, data, next); //struct tailhead 
+        }
+    }
+  fclose (configInfo);
 }
 
 void
@@ -58,7 +90,6 @@ get_data (int argc, char *argv[], struct pool *data)
     {
       if (argument_counter (argc, 3))
         exit (EXIT_FAILURE);
-
       snprintf (data->name, strlen (argv[2]), "%s", argv[2]);
     }
 
@@ -101,30 +132,7 @@ get_data (int argc, char *argv[], struct pool *data)
       fprintf (stderr, "Argument is not defined.\n");
       exit (EXIT_FAILURE);
     }
-}
-
-void
-init_data (struct pool *data)
-{
-  FILE *configInfo = fopen ("/etc/dhcp/config_info.txt", "r");
-  if (configInfo == NULL)
-    {
-      fprintf (stderr, "Failed to open config_info file. please try again.\n");
-      if (fopen ("/etc/dhcp/config_info.txt", "w") == NULL)
-        {
-          fprintf (stderr, "Failed to open config_info file.\n");
-          exit (EXIT_FAILURE);
-        }
-    }
-
-  fscanf (configInfo, "%s", data->subnet);
-  fscanf (configInfo, "%s", data->netmask);
-  fscanf (configInfo, "%s", data->rangeUp);
-  fscanf (configInfo, "%s", data->rangeDown);
-  fscanf (configInfo, "%s", data->gateway);
-  fscanf (configInfo, "%s", data->dns);
-
-  fclose (configInfo);
+  return;
 }
 
 void
