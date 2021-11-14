@@ -13,6 +13,11 @@
 #define _DHCPD_CONF_H
 
 #include <stdio.h>
+#include <errno.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <sys/queue.h>
 
 #define MAX_LEN 3
 #define IP_LEN 15
@@ -26,10 +31,16 @@ struct pool
   char rangeDown[IP_LEN];
   char gateway[IP_LEN];
   char dns[IP_LEN];
+
+  LIST_ENTRY (pool) next;
 };
+
+LIST_HEAD (listhead, pool);
+
 int argument_counter (int argc, int count);
+
+void init_data (struct pool *data, struct listhead head);
 void get_data (int argc, char *argv[], struct pool *data);
-void init_data (struct pool *data);
 void write_config_file (struct pool *data);
 void write_backup_file (struct pool *data);
 
