@@ -8,18 +8,15 @@
  * @copyright Copyright (c) 2021
  *
  */
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <unistd.h>
 
 #include "dhcpd_conf.h"
 
 int
 main (int argc, char *argv[])
 {
-  struct pool data;
-
+  struct pool *dhcp_pool;
+  struct listhead head;
+  
   char *args[] = {"service isc-dhcp-server restart", NULL};
 
   if (!argv[1])
@@ -28,12 +25,13 @@ main (int argc, char *argv[])
       exit (EXIT_FAILURE);
     }
 
-  init_data (&data);
+  init_data (dhcp_pool, head);
 
-  get_data (argc, argv, &data);
+  get_data (argc, argv, dhcp_pool);
+  LIST_INSERT_AFTER (dhcp_pool, dhcp_pool, next);
 
-  write_config_file (&data);
-  write_backup_file (&data);
+  write_config_file (dhcp_pool);
+  write_backup_file (dhcp_pool);
 
   if (execvp (args[0], args) == -1)
     {
