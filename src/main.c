@@ -15,8 +15,8 @@ int
 main (int argc, char *argv[])
 {
   struct pool *dhcp_pool;
-  struct listhead head;
-  
+  struct tailhead head;
+
   char *args[] = {"service isc-dhcp-server restart", NULL};
 
   if (!argv[1])
@@ -27,11 +27,10 @@ main (int argc, char *argv[])
 
   init_data (dhcp_pool, head);
 
-  get_data (argc, argv, dhcp_pool);
-  LIST_INSERT_AFTER (dhcp_pool, dhcp_pool, next);
+  get_data (argc, argv, dhcp_pool, head);
 
-  write_config_file (dhcp_pool);
-  write_backup_file (dhcp_pool);
+  write_config_file (dhcp_pool, head);
+  write_backup_file (dhcp_pool, head);
 
   if (execvp (args[0], args) == -1)
     {

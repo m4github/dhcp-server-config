@@ -17,6 +17,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <stddef.h>
 #include <sys/queue.h>
 
 #define MAX_LEN 3
@@ -32,16 +33,17 @@ struct pool
   char gateway[IP_LEN];
   char dns[IP_LEN];
 
-  LIST_ENTRY (pool) next;
+  TAILQ_ENTRY (pool) next;
 };
 
-LIST_HEAD (listhead, pool);
+TAILQ_HEAD (tailhead, pool);
 
 int argument_counter (int argc, int count);
 
-void init_data (struct pool *data, struct listhead head);
-void get_data (int argc, char *argv[], struct pool *data);
-void write_config_file (struct pool *data);
-void write_backup_file (struct pool *data);
+void init_data (struct pool *data, struct tailhead head);
+void get_data (int argc, char *argv[], struct pool *data,
+               struct tailhead head);
+void write_config_file (struct pool *data, struct tailhead head);
+void write_backup_file (struct pool *data, struct tailhead head);
 
 #endif
