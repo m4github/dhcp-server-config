@@ -37,24 +37,22 @@ init_data (struct pool *data, struct tailhead head)
           exit (EXIT_FAILURE);
         }
     }
-  data = malloc (sizeof (struct pool));
-  if (TAILQ_EMPTY (&head))
-    {
-      TAILQ_INIT (&head);
-      TAILQ_INSERT_HEAD (&head, data, next);
-      while (configInfo)
-        {
-          fscanf (configInfo, "%s", data->name);
-          fscanf (configInfo, "%s", data->subnet);
-          fscanf (configInfo, "%s", data->netmask);
-          fscanf (configInfo, "%s", data->rangeUp);
-          fscanf (configInfo, "%s", data->rangeDown);
-          fscanf (configInfo, "%s", data->gateway);
-          fscanf (configInfo, "%s", data->dns);
 
-          struct pool *data = malloc (sizeof (struct pool));
-          TAILQ_INSERT_TAIL (&head, data, next);
-        }
+  data = malloc (sizeof (struct pool));
+  TAILQ_INSERT_HEAD (&head, data, next);
+
+  while (!feof (configInfo))
+    {
+      fscanf (configInfo, "%s", data->name);
+      fscanf (configInfo, "%s", data->subnet);
+      fscanf (configInfo, "%s", data->netmask);
+      fscanf (configInfo, "%s", data->rangeUp);
+      fscanf (configInfo, "%s", data->rangeDown);
+      fscanf (configInfo, "%s", data->gateway);
+      fscanf (configInfo, "%s", data->dns);
+
+      struct pool *data = malloc (sizeof (struct pool));
+      TAILQ_INSERT_TAIL (&head, data, next);
     }
   fclose (configInfo);
 }
@@ -101,16 +99,15 @@ get_data (int argc, char *argv[], struct pool *data, struct tailhead head)
       if (argument_counter (argc, 5))
         exit (EXIT_FAILURE);
 
-      while (data != NULL)
-        {
-          TAILQ_FOREACH (data, &head, next);
-          if (!strcmp (data->name, argv[1]))
-            {
-              snprintf (data->subnet, strlen (argv[2]) + 1, "%s", argv[2]);
-              snprintf (data->netmask, strlen (argv[3]) + 1, "%s", argv[3]);
-            }
-        }
-        //TODO print err -> no *name* pool /add it for all options
+      TAILQ_FOREACH (data, &head, next)
+      {
+        if (!strcmp (data->name, argv[1]))
+          {
+            snprintf (data->subnet, strlen (argv[2]) + 1, "%s", argv[2]);
+            snprintf (data->netmask, strlen (argv[3]) + 1, "%s", argv[3]);
+          }
+      }
+      //TODO print err -> no *name* pool /add it for all options
     }
 
   else if (argc && !strcmp (argv[2], "range"))
@@ -118,15 +115,14 @@ get_data (int argc, char *argv[], struct pool *data, struct tailhead head)
       if (argument_counter (argc, 5))
         exit (EXIT_FAILURE);
 
-      while (data != NULL)
-        {
-          TAILQ_FOREACH (data, &head, next);
-          if (!strcmp (data->name, argv[1]))
-            {
-              snprintf (data->rangeUp, strlen (argv[2]) + 1, "%s", argv[2]);
-              snprintf (data->rangeDown, strlen (argv[3]) + 1, "%s", argv[3]);
-            }
-        }
+      TAILQ_FOREACH (data, &head, next)
+      {
+        if (!strcmp (data->name, argv[1]))
+          {
+            snprintf (data->rangeUp, strlen (argv[2]) + 1, "%s", argv[2]);
+            snprintf (data->rangeDown, strlen (argv[3]) + 1, "%s", argv[3]);
+          }
+      }
     }
 
   else if (argc && !strcmp (argv[2], "default-router"))
@@ -134,12 +130,11 @@ get_data (int argc, char *argv[], struct pool *data, struct tailhead head)
       if (argument_counter (argc, 4))
         exit (EXIT_FAILURE);
 
-      while (data != NULL)
-        {
-          TAILQ_FOREACH (data, &head, next);
-          if (!strcmp (data->name, argv[1]))
-            snprintf (data->gateway, strlen (argv[2]) + 1, "%s", argv[2]);
-        }
+      TAILQ_FOREACH (data, &head, next)
+      {
+        if (!strcmp (data->name, argv[1]))
+          snprintf (data->gateway, strlen (argv[2]) + 1, "%s", argv[2]);
+      }
     }
 
   else if (argc && !strcmp (argv[2], "dns-server"))
@@ -147,12 +142,11 @@ get_data (int argc, char *argv[], struct pool *data, struct tailhead head)
       if (argument_counter (argc, 4))
         exit (EXIT_FAILURE);
 
-      while (data != NULL)
-        {
-          TAILQ_FOREACH (data, &head, next);
-          if (!strcmp (data->name, argv[1]))
-            snprintf (data->dns, strlen (argv[2]) + 1, "%s", argv[2]);
-        }
+      TAILQ_FOREACH (data, &head, next)
+      {
+        if (!strcmp (data->name, argv[1]))
+          snprintf (data->dns, strlen (argv[2]) + 1, "%s", argv[2]);
+      }
     }
 
   else
@@ -177,36 +171,34 @@ write_config_file (struct pool *data, struct tailhead head)
   if (dhcpdconfig == NULL)
     exit (EXIT_FAILURE);
 
-  while (data != NULL)
-    {
-      TAILQ_FOREACH (data, &head, next);
+  TAILQ_FOREACH (data, &head, next)
+  {
+    strcat (buffer, "#poll ");
+    strcat (buffer, data->name);
+    strcat (buffer, "\n");
 
-      snprintf (buffer, 7, "%s", "#poll ");
-      strncat (buffer, data->name, strlen (data->name));
-      strncat (buffer, "{\n", MAX_LEN);
+    strcat (buffer, "subnet ");
+    strcat (buffer, data->subnet);
 
-      strncat (buffer, "subnet ", 8);
-      strncat (buffer, data->subnet, strlen (data->subnet));
+    strcat (buffer, " netmask ");
+    strcat (buffer, data->netmask);
+    strcat (buffer, "{\n");
 
-      strncat (buffer, " netmask ", 10);
-      strncat (buffer, data->netmask, strlen (data->netmask));
-      strncat (buffer, "{\n", MAX_LEN);
+    strcat (buffer, "range ");
+    strcat (buffer, data->rangeUp);
+    strcat (buffer, " ");
 
-      strncat (buffer, "range ", 7);
-      strncat (buffer, data->rangeUp, strlen (data->rangeUp));
-      strncat (buffer, " ", MAX_LEN);
+    strcat (buffer, data->rangeDown);
+    strcat (buffer, ";\n");
 
-      strncat (buffer, data->rangeDown, strlen (data->rangeDown));
-      strncat (buffer, ";\n", MAX_LEN);
+    strcat (buffer, "option routers ");
+    strcat (buffer, data->gateway);
+    strcat (buffer, ";\n");
 
-      strncat (buffer, "option routers ", 16);
-      strncat (buffer, data->gateway, strlen (data->gateway));
-      strncat (buffer, ";\n", MAX_LEN);
-
-      strncat (buffer, "option domain-name-servers ", 28);
-      strncat (buffer, data->dns, strlen (data->dns));
-      strncat (buffer, ";}", MAX_LEN);
-    }
+    strcat (buffer, "option domain-name-servers ");
+    strcat (buffer, data->dns);
+    strcat (buffer, ";}");
+  }
   fputs (buffer, dhcpdconfig);
 
   fclose (dhcpdconfig);
@@ -216,7 +208,7 @@ write_config_file (struct pool *data, struct tailhead head)
 void
 write_backup_file (struct pool *data, struct tailhead head)
 {
-  char *buffer = (char *)malloc (sizeof (struct pool) * 128);
+  char *buffer = (char *)malloc (sizeof (struct pool) * 254);
   if (buffer == NULL)
     {
       fprintf (stderr, "couldnt allocate memory.");
@@ -227,31 +219,29 @@ write_backup_file (struct pool *data, struct tailhead head)
   if (configInfo == NULL)
     exit (EXIT_FAILURE);
 
-  while (data != NULL)
-    {
-      TAILQ_FOREACH (data, &head, next);
+  TAILQ_FOREACH (data, &head, next)
+  {
+    strcat (buffer, data->name);
+    strcat (buffer, "\n");
 
-      snprintf (buffer, strlen (data->name), "%s", data->name);
-      strncat (buffer, "\n", MAX_LEN);
+    strcat (buffer, data->subnet);
+    strcat (buffer, "\n");
 
-      strncat (buffer, data->subnet, strlen (data->subnet));
-      strncat (buffer, "\n", MAX_LEN);
+    strcat (buffer, data->netmask);
+    strcat (buffer, "\n");
 
-      strncat (buffer, data->netmask, strlen (data->netmask));
-      strncat (buffer, "\n", MAX_LEN);
+    strcat (buffer, data->rangeUp);
+    strcat (buffer, "\n");
 
-      strncat (buffer, data->rangeUp, strlen (data->rangeUp));
-      strncat (buffer, "\n", MAX_LEN);
+    strcat (buffer, data->rangeDown);
+    strcat (buffer, "\n");
 
-      strncat (buffer, data->rangeDown, strlen (data->rangeDown));
-      strncat (buffer, "\n", MAX_LEN);
+    strcat (buffer, data->gateway);
+    strcat (buffer, "\n");
 
-      strncat (buffer, data->gateway, strlen (data->gateway));
-      strncat (buffer, "\n", MAX_LEN);
-
-      strncat (buffer, data->dns, strlen (data->dns));
-      strncat (buffer, "\n", MAX_LEN);
-    }
+    strcat (buffer, data->dns);
+    strcat (buffer, "\n");
+  }
   fputs (buffer, configInfo);
 
   fclose (configInfo);
