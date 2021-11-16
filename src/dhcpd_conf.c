@@ -90,7 +90,7 @@ get_data (int argc, char *argv[], struct pool *data, struct tailhead head)
 
       data = malloc (sizeof (struct pool));
       TAILQ_INSERT_TAIL (&head, data, next);
-      snprintf (data->name, strlen (argv[2])+1, "%s", argv[2]);
+      snprintf (data->name, strlen (argv[2]) + 1, "%s", argv[2]);
     }
 
   else if (argc  && !strcmp (argv[2], "network"))
@@ -168,11 +168,13 @@ write_config_file (struct pool *data, struct tailhead head)
 
   FILE *dhcpdconfig = fopen ("/etc/dhcp/dhcpd.conf", "w");
   if (dhcpdconfig == NULL)
-    exit (EXIT_FAILURE);
-
+    {
+      fprintf (stderr, "Failed to open file.");
+      exit (EXIT_FAILURE);
+    }
   TAILQ_FOREACH (data, &head, next)
   {
-    strcat (buffer, "#poll ");
+    strcat (buffer, "#pool ");
     strcat (buffer, data->name);
     strcat (buffer, "\n");
 
@@ -216,8 +218,10 @@ write_backup_file (struct pool *data, struct tailhead head)
 
   FILE *configInfo = fopen ("/etc/dhcp/config_info.txt", "w");
   if (configInfo == NULL)
-    exit (EXIT_FAILURE);
-
+    {
+      fprintf (stderr, "Failed to open file.");
+      exit (EXIT_FAILURE);
+    }
   TAILQ_FOREACH (data, &head, next)
   {
     strcat (buffer, data->name);
