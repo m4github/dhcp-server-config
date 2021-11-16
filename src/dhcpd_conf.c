@@ -36,6 +36,7 @@ init_data (struct pool *data, struct tailhead head)
           fprintf (stderr, "Failed to open config_info file.\n");
           exit (EXIT_FAILURE);
         }
+      exit (EXIT_FAILURE);
     }
 
   data = malloc (sizeof (struct pool));
