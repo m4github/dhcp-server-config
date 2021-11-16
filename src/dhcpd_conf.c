@@ -39,11 +39,10 @@ init_data (struct pool *data, struct tailhead head)
       exit (EXIT_FAILURE);
     }
 
-  data = malloc (sizeof (struct pool));
-  TAILQ_INSERT_HEAD (&head, data, next);
-
   while (!feof (configInfo))
     {
+      struct pool *data = malloc (sizeof (struct pool));
+
       fscanf (configInfo, "%s", data->name);
       fscanf (configInfo, "%s", data->subnet);
       fscanf (configInfo, "%s", data->netmask);
@@ -52,7 +51,6 @@ init_data (struct pool *data, struct tailhead head)
       fscanf (configInfo, "%s", data->gateway);
       fscanf (configInfo, "%s", data->dns);
 
-      struct pool *data = malloc (sizeof (struct pool));
       TAILQ_INSERT_TAIL (&head, data, next);
     }
   fclose (configInfo);
@@ -92,7 +90,7 @@ get_data (int argc, char *argv[], struct pool *data, struct tailhead head)
 
       data = malloc (sizeof (struct pool));
       TAILQ_INSERT_TAIL (&head, data, next);
-      snprintf (data->name, strlen (argv[2]), "%s", argv[2]);
+      snprintf (data->name, strlen (argv[2])+1, "%s", argv[2]);
     }
 
   else if (argc  && !strcmp (argv[2], "network"))
@@ -198,7 +196,7 @@ write_config_file (struct pool *data, struct tailhead head)
 
     strcat (buffer, "option domain-name-servers ");
     strcat (buffer, data->dns);
-    strcat (buffer, ";}");
+    strcat (buffer, ";}\n");
   }
   fputs (buffer, dhcpdconfig);
 
