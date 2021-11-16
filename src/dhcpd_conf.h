@@ -25,7 +25,7 @@
 
 struct pool
 {
-  char *name;
+  char name[IP_LEN];
   char subnet[IP_LEN];
   char netmask[IP_LEN];
   char rangeUp[IP_LEN];
