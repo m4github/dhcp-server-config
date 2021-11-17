@@ -91,6 +91,7 @@ get_data (int argc, char *argv[], struct pool *data, struct stailqhead head)
       data = malloc (sizeof (struct pool));
       STAILQ_INSERT_TAIL (&head, data, next);
       snprintf (data->name, strlen (argv[2]) + 1, "%s", argv[2]);
+      return;
     }
 
   else if (argc  && !strcmp (argv[2], "network"))
