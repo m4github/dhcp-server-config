@@ -24,7 +24,7 @@ argument_counter (int argc, int count)
 }
 
 void
-init_data (struct pool *data, struct tailhead head)
+init_data (struct pool *data, struct stailqhead head)
 {
   FILE *configInfo = fopen ("/etc/dhcp/config_info.txt", "r");
   if (configInfo == NULL)
@@ -51,13 +51,13 @@ init_data (struct pool *data, struct tailhead head)
       fscanf (configInfo, "%s", data->gateway);
       fscanf (configInfo, "%s", data->dns);
 
-      TAILQ_INSERT_TAIL (&head, data, next);
+      STAILQ_INSERT_TAIL (&head, data, next);
     }
   fclose (configInfo);
 }
 
 void
-get_data (int argc, char *argv[], struct pool *data, struct tailhead head)
+get_data (int argc, char *argv[], struct pool *data, struct stailqhead head)
 {
   if (argc && !strcmp (argv[1], "-reset"))
     {
@@ -89,7 +89,7 @@ get_data (int argc, char *argv[], struct pool *data, struct tailhead head)
         exit (EXIT_FAILURE);
 
       data = malloc (sizeof (struct pool));
-      TAILQ_INSERT_TAIL (&head, data, next);
+      STAILQ_INSERT_TAIL (&head, data, next);
       snprintf (data->name, strlen (argv[2]) + 1, "%s", argv[2]);
     }
 
@@ -98,7 +98,7 @@ get_data (int argc, char *argv[], struct pool *data, struct tailhead head)
       if (argument_counter (argc, 5))
         exit (EXIT_FAILURE);
 
-      TAILQ_FOREACH (data, &head, next)
+      STAILQ_FOREACH (data, &head, next)
       {
         if (!strcmp (data->name, argv[1]))
           {
@@ -114,7 +114,7 @@ get_data (int argc, char *argv[], struct pool *data, struct tailhead head)
       if (argument_counter (argc, 5))
         exit (EXIT_FAILURE);
 
-      TAILQ_FOREACH (data, &head, next)
+      STAILQ_FOREACH (data, &head, next)
       {
         if (!strcmp (data->name, argv[1]))
           {
@@ -129,7 +129,7 @@ get_data (int argc, char *argv[], struct pool *data, struct tailhead head)
       if (argument_counter (argc, 4))
         exit (EXIT_FAILURE);
 
-      TAILQ_FOREACH (data, &head, next)
+      STAILQ_FOREACH (data, &head, next)
       {
         if (!strcmp (data->name, argv[1]))
           snprintf (data->gateway, strlen (argv[3]) + 1, "%s", argv[3]);
@@ -141,7 +141,7 @@ get_data (int argc, char *argv[], struct pool *data, struct tailhead head)
       if (argument_counter (argc, 4))
         exit (EXIT_FAILURE);
 
-      TAILQ_FOREACH (data, &head, next)
+      STAILQ_FOREACH (data, &head, next)
       {
         if (!strcmp (data->name, argv[1]))
           snprintf (data->dns, strlen (argv[3]) + 1, "%s", argv[3]);
@@ -157,97 +157,77 @@ get_data (int argc, char *argv[], struct pool *data, struct tailhead head)
 }
 
 void
-write_config_file (struct pool *data, struct tailhead head)
+write_config_file (struct pool *data, struct stailqhead head)
 {
-  char *buffer = (char *)malloc (sizeof (struct pool) * 256);
-  if (buffer == NULL)
-    {
-      fprintf (stderr, "couldnt allocate memory.");
-      exit (EXIT_FAILURE);
-    }
-
   FILE *dhcpdconfig = fopen ("/etc/dhcp/dhcpd.conf", "w");
   if (dhcpdconfig == NULL)
     {
       fprintf (stderr, "Failed to open file.");
       exit (EXIT_FAILURE);
     }
-  TAILQ_FOREACH (data, &head, next)
+  STAILQ_FOREACH (data, &head, next)
   {
-    strcat (buffer, "#pool ");
-    strcat (buffer, data->name);
-    strcat (buffer, "\n");
+    fprintf (dhcpdconfig,"%s","#pool ");
+    fprintf (dhcpdconfig,"%s", data->name);
+    fprintf (dhcpdconfig,"%s","\n");
 
-    strcat (buffer, "subnet ");
-    strcat (buffer, data->subnet);
+    fprintf (dhcpdconfig,"%s","subnet ");
+    fprintf (dhcpdconfig,"%s", data->subnet);
 
-    strcat (buffer, " netmask ");
-    strcat (buffer, data->netmask);
-    strcat (buffer, "{\n");
+    fprintf (dhcpdconfig,"%s"," netmask ");
+    fprintf (dhcpdconfig,"%s", data->netmask);
+    fprintf (dhcpdconfig,"%s", "{\n");
 
-    strcat (buffer, "range ");
-    strcat (buffer, data->rangeUp);
-    strcat (buffer, " ");
+    fprintf (dhcpdconfig,"%s","range ");
+    fprintf (dhcpdconfig,"%s", data->rangeUp);
+    fprintf (dhcpdconfig,"%s", " ");
 
-    strcat (buffer, data->rangeDown);
-    strcat (buffer, ";\n");
+    fprintf (dhcpdconfig,"%s", data->rangeDown);
+    fprintf (dhcpdconfig,"%s", ";\n");
 
-    strcat (buffer, "option routers ");
-    strcat (buffer, data->gateway);
-    strcat (buffer, ";\n");
+    fprintf (dhcpdconfig,"%s", "option routers ");
+    fprintf (dhcpdconfig,"%s", data->gateway);
+    fprintf (dhcpdconfig,"%s",";\n");
 
-    strcat (buffer, "option domain-name-servers ");
-    strcat (buffer, data->dns);
-    strcat (buffer, ";}\n");
+    fprintf (dhcpdconfig,"%s", "option domain-name-servers ");
+    fprintf (dhcpdconfig,"%s", data->dns);
+    fprintf (dhcpdconfig,"%s", ";}\n");
   }
-  fputs (buffer, dhcpdconfig);
-
   fclose (dhcpdconfig);
-  free(buffer);
 }
 
 void
-write_backup_file (struct pool *data, struct tailhead head)
+write_backup_file (struct pool *data, struct stailqhead head)
 {
-  char *buffer = (char *)malloc (sizeof (struct pool) * 254);
-  if (buffer == NULL)
-    {
-      fprintf (stderr, "couldnt allocate memory.");
-      exit (EXIT_FAILURE);
-    }
-
   FILE *configInfo = fopen ("/etc/dhcp/config_info.txt", "w");
   if (configInfo == NULL)
     {
       fprintf (stderr, "Failed to open file.");
       exit (EXIT_FAILURE);
     }
-  TAILQ_FOREACH (data, &head, next)
+  STAILQ_FOREACH (data, &head, next)
   {
-    strcat (buffer, data->name);
-    strcat (buffer, "\n");
+    fprintf (configInfo,"%s",data->name);
+    fprintf (configInfo,"%s", "\n");
 
-    strcat (buffer, data->subnet);
-    strcat (buffer, "\n");
+    fprintf (configInfo,"%s",data->subnet);
+    fprintf (configInfo,"%s", "\n");
 
-    strcat (buffer, data->netmask);
-    strcat (buffer, "\n");
+    fprintf (configInfo,"%s", data->netmask);
+    fprintf (configInfo,"%s", "\n");
 
-    strcat (buffer, data->rangeUp);
-    strcat (buffer, "\n");
+    fprintf (configInfo,"%s",data->rangeUp);
+    fprintf (configInfo,"%s", "\n");
 
-    strcat (buffer, data->rangeDown);
-    strcat (buffer, "\n");
+    fprintf (configInfo,"%s", data->rangeDown);
+    fprintf (configInfo,"%s", "\n");
 
-    strcat (buffer, data->gateway);
-    strcat (buffer, "\n");
+    fprintf (configInfo,"%s", data->gateway);
+    fprintf (configInfo,"%s","\n");
 
-    strcat (buffer, data->dns);
-    strcat (buffer, "\n");
+    fprintf (configInfo,"%s", data->dns);
+    fprintf (configInfo,"%s", "\n");
   }
-  fputs (buffer, configInfo);
-
   fclose (configInfo);
-  free (buffer);
 }
 

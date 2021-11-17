@@ -33,17 +33,17 @@ struct pool
   char gateway[IP_LEN];
   char dns[IP_LEN];
 
-  TAILQ_ENTRY (pool) next;
+  STAILQ_ENTRY (pool) next;
 };
 
-TAILQ_HEAD (tailhead, pool);
+STAILQ_HEAD (stailqhead, pool);
 
 int argument_counter (int argc, int count);
 
-void init_data (struct pool *data, struct tailhead head);
+void init_data (struct pool *data, struct stailqhead head);
 void get_data (int argc, char *argv[], struct pool *data,
-               struct tailhead head);
-void write_config_file (struct pool *data, struct tailhead head);
-void write_backup_file (struct pool *data, struct tailhead head);
+               struct stailqhead head);
+void write_config_file (struct pool *data, struct stailqhead head);
+void write_backup_file (struct pool *data, struct stailqhead head);
 
 #endif

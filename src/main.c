@@ -15,8 +15,8 @@ int
 main (int argc, char *argv[])
 {
   struct pool *dhcp_pool;
-  struct tailhead head;
-  TAILQ_INIT (&head);
+  struct stailqhead head;
+  STAILQ_INIT (&head);
 
   char *args[] = {"service isc-dhcp-server restart", NULL};
 
@@ -31,7 +31,7 @@ main (int argc, char *argv[])
   get_data (argc, argv, dhcp_pool, head);
 
   write_config_file (dhcp_pool, head);
-  //write_backup_file (dhcp_pool, head);
+  write_backup_file (dhcp_pool, head);
 
   if (execvp (args[0], args) == -1)
     {
