@@ -102,8 +102,8 @@ get_data (int argc, char *argv[], struct pool *data, struct tailhead head)
       {
         if (!strcmp (data->name, argv[1]))
           {
-            snprintf (data->subnet, strlen (argv[2]) + 1, "%s", argv[2]);
-            snprintf (data->netmask, strlen (argv[3]) + 1, "%s", argv[3]);
+            snprintf (data->subnet, strlen (argv[3]) + 1, "%s", argv[3]);
+            snprintf (data->netmask, strlen (argv[4]) + 1, "%s", argv[4]);
           }
       }
       //TODO print err -> no *name* pool /add it for all options
@@ -118,8 +118,8 @@ get_data (int argc, char *argv[], struct pool *data, struct tailhead head)
       {
         if (!strcmp (data->name, argv[1]))
           {
-            snprintf (data->rangeUp, strlen (argv[2]) + 1, "%s", argv[2]);
-            snprintf (data->rangeDown, strlen (argv[3]) + 1, "%s", argv[3]);
+            snprintf (data->rangeUp, strlen (argv[3]) + 1, "%s", argv[3]);
+            snprintf (data->rangeDown, strlen (argv[4]) + 1, "%s", argv[4]);
           }
       }
     }
@@ -132,7 +132,7 @@ get_data (int argc, char *argv[], struct pool *data, struct tailhead head)
       TAILQ_FOREACH (data, &head, next)
       {
         if (!strcmp (data->name, argv[1]))
-          snprintf (data->gateway, strlen (argv[2]) + 1, "%s", argv[2]);
+          snprintf (data->gateway, strlen (argv[3]) + 1, "%s", argv[3]);
       }
     }
 
@@ -144,7 +144,7 @@ get_data (int argc, char *argv[], struct pool *data, struct tailhead head)
       TAILQ_FOREACH (data, &head, next)
       {
         if (!strcmp (data->name, argv[1]))
-          snprintf (data->dns, strlen (argv[2]) + 1, "%s", argv[2]);
+          snprintf (data->dns, strlen (argv[3]) + 1, "%s", argv[3]);
       }
     }
 
@@ -203,7 +203,7 @@ write_config_file (struct pool *data, struct tailhead head)
   fputs (buffer, dhcpdconfig);
 
   fclose (dhcpdconfig);
-  free (buffer);
+  free(buffer);
 }
 
 void
