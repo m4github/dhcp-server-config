@@ -104,9 +104,11 @@ get_data (int argc, char *argv[], struct pool *data, struct stailqhead head)
           {
             snprintf (data->subnet, strlen (argv[3]) + 1, "%s", argv[3]);
             snprintf (data->netmask, strlen (argv[4]) + 1, "%s", argv[4]);
+            return;
           }
       }
-      //TODO print err -> no *name* pool /add it for all options
+      fprintf (stderr, "pool name not found.\n");
+      exit (EXIT_FAILURE);
     }
 
   else if (argc && !strcmp (argv[2], "range"))
@@ -120,8 +122,11 @@ get_data (int argc, char *argv[], struct pool *data, struct stailqhead head)
           {
             snprintf (data->rangeUp, strlen (argv[3]) + 1, "%s", argv[3]);
             snprintf (data->rangeDown, strlen (argv[4]) + 1, "%s", argv[4]);
+            return;
           }
       }
+      fprintf (stderr, "pool name not found.\n");
+      exit (EXIT_FAILURE);
     }
 
   else if (argc && !strcmp (argv[2], "default-router"))
@@ -132,8 +137,13 @@ get_data (int argc, char *argv[], struct pool *data, struct stailqhead head)
       STAILQ_FOREACH (data, &head, next)
       {
         if (!strcmp (data->name, argv[1]))
-          snprintf (data->gateway, strlen (argv[3]) + 1, "%s", argv[3]);
+          {
+            snprintf (data->gateway, strlen (argv[3]) + 1, "%s", argv[3]);
+            return;
+          }
       }
+      fprintf (stderr, "pool name not found.\n");
+      exit (EXIT_FAILURE);
     }
 
   else if (argc && !strcmp (argv[2], "dns-server"))
@@ -144,8 +154,13 @@ get_data (int argc, char *argv[], struct pool *data, struct stailqhead head)
       STAILQ_FOREACH (data, &head, next)
       {
         if (!strcmp (data->name, argv[1]))
-          snprintf (data->dns, strlen (argv[3]) + 1, "%s", argv[3]);
+          {
+            snprintf (data->dns, strlen (argv[3]) + 1, "%s", argv[3]);
+            return;
+          }
       }
+      fprintf (stderr, "pool name not found.\n");
+      exit (EXIT_FAILURE);
     }
 
   else
@@ -153,7 +168,6 @@ get_data (int argc, char *argv[], struct pool *data, struct stailqhead head)
       fprintf (stderr, "Argument is not defined.\n");
       exit (EXIT_FAILURE);
     }
-  return;
 }
 
 void
@@ -167,31 +181,31 @@ write_config_file (struct pool *data, struct stailqhead head)
     }
   STAILQ_FOREACH (data, &head, next)
   {
-    fprintf (dhcpdconfig,"%s","#pool ");
-    fprintf (dhcpdconfig,"%s", data->name);
-    fprintf (dhcpdconfig,"%s","\n");
+    fprintf (dhcpdconfig, "%s", "#pool ");
+    fprintf (dhcpdconfig, "%s", data->name);
+    fprintf (dhcpdconfig, "%s", "\n");
 
-    fprintf (dhcpdconfig,"%s","subnet ");
-    fprintf (dhcpdconfig,"%s", data->subnet);
+    fprintf (dhcpdconfig, "%s", "subnet ");
+    fprintf (dhcpdconfig, "%s", data->subnet);
 
-    fprintf (dhcpdconfig,"%s"," netmask ");
-    fprintf (dhcpdconfig,"%s", data->netmask);
-    fprintf (dhcpdconfig,"%s", "{\n");
+    fprintf (dhcpdconfig, "%s", " netmask ");
+    fprintf (dhcpdconfig, "%s", data->netmask);
+    fprintf (dhcpdconfig, "%s", "{\n");
 
-    fprintf (dhcpdconfig,"%s","range ");
-    fprintf (dhcpdconfig,"%s", data->rangeUp);
-    fprintf (dhcpdconfig,"%s", " ");
+    fprintf (dhcpdconfig, "%s", "range ");
+    fprintf (dhcpdconfig, "%s", data->rangeUp);
+    fprintf (dhcpdconfig, "%s", " ");
 
-    fprintf (dhcpdconfig,"%s", data->rangeDown);
-    fprintf (dhcpdconfig,"%s", ";\n");
+    fprintf (dhcpdconfig, "%s", data->rangeDown);
+    fprintf (dhcpdconfig, "%s", ";\n");
 
-    fprintf (dhcpdconfig,"%s", "option routers ");
-    fprintf (dhcpdconfig,"%s", data->gateway);
-    fprintf (dhcpdconfig,"%s",";\n");
+    fprintf (dhcpdconfig, "%s", "option routers ");
+    fprintf (dhcpdconfig, "%s", data->gateway);
+    fprintf (dhcpdconfig, "%s", ";\n");
 
-    fprintf (dhcpdconfig,"%s", "option domain-name-servers ");
-    fprintf (dhcpdconfig,"%s", data->dns);
-    fprintf (dhcpdconfig,"%s", ";}\n");
+    fprintf (dhcpdconfig, "%s", "option domain-name-servers ");
+    fprintf (dhcpdconfig, "%s", data->dns);
+    fprintf (dhcpdconfig, "%s", ";}\n");
   }
   fclose (dhcpdconfig);
 }
@@ -207,26 +221,26 @@ write_backup_file (struct pool *data, struct stailqhead head)
     }
   STAILQ_FOREACH (data, &head, next)
   {
-    fprintf (configInfo,"%s",data->name);
-    fprintf (configInfo,"%s", "\n");
+    fprintf (configInfo, "%s", data->name);
+    fprintf (configInfo, "%s", "\n");
 
-    fprintf (configInfo,"%s",data->subnet);
-    fprintf (configInfo,"%s", "\n");
+    fprintf (configInfo, "%s", data->subnet);
+    fprintf (configInfo, "%s", "\n");
 
-    fprintf (configInfo,"%s", data->netmask);
-    fprintf (configInfo,"%s", "\n");
+    fprintf (configInfo, "%s", data->netmask);
+    fprintf (configInfo, "%s", "\n");
 
-    fprintf (configInfo,"%s",data->rangeUp);
-    fprintf (configInfo,"%s", "\n");
+    fprintf (configInfo, "%s", data->rangeUp);
+    fprintf (configInfo, "%s", "\n");
 
-    fprintf (configInfo,"%s", data->rangeDown);
-    fprintf (configInfo,"%s", "\n");
+    fprintf (configInfo, "%s", data->rangeDown);
+    fprintf (configInfo, "%s", "\n");
 
-    fprintf (configInfo,"%s", data->gateway);
-    fprintf (configInfo,"%s","\n");
+    fprintf (configInfo, "%s", data->gateway);
+    fprintf (configInfo, "%s", "\n");
 
-    fprintf (configInfo,"%s", data->dns);
-    fprintf (configInfo,"%s", "\n");
+    fprintf (configInfo, "%s", data->dns);
+    fprintf (configInfo, "%s", "\n");
   }
   fclose (configInfo);
 }
