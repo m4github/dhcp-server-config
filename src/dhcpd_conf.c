@@ -24,7 +24,7 @@ argument_counter (int argc, int count)
 }
 
 void
-init_data (struct pool *data, struct stailqhead head)
+init_data (struct pool *data, struct stailqhead *head)
 {
   FILE *configInfo = fopen ("/etc/dhcp/config_info.txt", "r");
   if (configInfo == NULL)
@@ -38,8 +38,11 @@ init_data (struct pool *data, struct stailqhead head)
         }
       exit (EXIT_FAILURE);
     }
+  fseek (configInfo, 0, SEEK_END);
+  long size = ftell (configInfo);
+  fseek (configInfo, 0, SEEK_SET);
 
-  while (!feof (configInfo))
+  while (ftell (configInfo) != size)
     {
       struct pool *data = malloc (sizeof (struct pool));
 
@@ -51,13 +54,13 @@ init_data (struct pool *data, struct stailqhead head)
       fscanf (configInfo, "%s", data->gateway);
       fscanf (configInfo, "%s", data->dns);
 
-      STAILQ_INSERT_TAIL (&head, data, next);
+      STAILQ_INSERT_TAIL (head, data, next);
     }
   fclose (configInfo);
 }
 
 void
-get_data (int argc, char *argv[], struct pool *data, struct stailqhead head)
+get_data (int argc, char *argv[], struct pool *data, struct stailqhead *head)
 {
   if (argc && !strcmp (argv[1], "-reset"))
     {
@@ -88,8 +91,16 @@ get_data (int argc, char *argv[], struct pool *data, struct stailqhead head)
       if (argument_counter (argc, 3))
         exit (EXIT_FAILURE);
 
+      STAILQ_FOREACH (data, head, next)
+      {
+        if (!strcmp (argv[2], data->name))
+          {
+            fprintf (stderr, "pool name already exist.\n");
+            exit (EXIT_FAILURE);
+          }
+      }
       data = malloc (sizeof (struct pool));
-      STAILQ_INSERT_TAIL (&head, data, next);
+      STAILQ_INSERT_TAIL (head, data, next);
       snprintf (data->name, strlen (argv[2]) + 1, "%s", argv[2]);
       return;
     }
@@ -99,7 +110,7 @@ get_data (int argc, char *argv[], struct pool *data, struct stailqhead head)
       if (argument_counter (argc, 5))
         exit (EXIT_FAILURE);
 
-      STAILQ_FOREACH (data, &head, next)
+      STAILQ_FOREACH (data, head, next)
       {
         if (!strcmp (data->name, argv[1]))
           {
@@ -117,7 +128,7 @@ get_data (int argc, char *argv[], struct pool *data, struct stailqhead head)
       if (argument_counter (argc, 5))
         exit (EXIT_FAILURE);
 
-      STAILQ_FOREACH (data, &head, next)
+      STAILQ_FOREACH (data, head, next)
       {
         if (!strcmp (data->name, argv[1]))
           {
@@ -135,7 +146,7 @@ get_data (int argc, char *argv[], struct pool *data, struct stailqhead head)
       if (argument_counter (argc, 4))
         exit (EXIT_FAILURE);
 
-      STAILQ_FOREACH (data, &head, next)
+      STAILQ_FOREACH (data, head, next)
       {
         if (!strcmp (data->name, argv[1]))
           {
@@ -152,7 +163,7 @@ get_data (int argc, char *argv[], struct pool *data, struct stailqhead head)
       if (argument_counter (argc, 4))
         exit (EXIT_FAILURE);
 
-      STAILQ_FOREACH (data, &head, next)
+      STAILQ_FOREACH (data, head, next)
       {
         if (!strcmp (data->name, argv[1]))
           {
@@ -172,7 +183,7 @@ get_data (int argc, char *argv[], struct pool *data, struct stailqhead head)
 }
 
 void
-write_config_file (struct pool *data, struct stailqhead head)
+write_config_file (struct pool *data, struct stailqhead *head)
 {
   FILE *dhcpdconfig = fopen ("/etc/dhcp/dhcpd.conf", "w");
   if (dhcpdconfig == NULL)
@@ -180,7 +191,7 @@ write_config_file (struct pool *data, struct stailqhead head)
       fprintf (stderr, "Failed to open file.");
       exit (EXIT_FAILURE);
     }
-  STAILQ_FOREACH (data, &head, next)
+  STAILQ_FOREACH (data, head, next)
   {
     fprintf (dhcpdconfig, "%s", "#pool ");
     fprintf (dhcpdconfig, "%s", data->name);
@@ -212,7 +223,7 @@ write_config_file (struct pool *data, struct stailqhead head)
 }
 
 void
-write_backup_file (struct pool *data, struct stailqhead head)
+write_backup_file (struct pool *data, struct stailqhead *head)
 {
   FILE *configInfo = fopen ("/etc/dhcp/config_info.txt", "w");
   if (configInfo == NULL)
@@ -220,7 +231,7 @@ write_backup_file (struct pool *data, struct stailqhead head)
       fprintf (stderr, "Failed to open file.");
       exit (EXIT_FAILURE);
     }
-  STAILQ_FOREACH (data, &head, next)
+  STAILQ_FOREACH (data, head, next)
   {
     fprintf (configInfo, "%s", data->name);
     fprintf (configInfo, "%s", "\n");
