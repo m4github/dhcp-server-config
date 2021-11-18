@@ -26,12 +26,12 @@ main (int argc, char *argv[])
       exit (EXIT_FAILURE);
     }
 
-  init_data (dhcp_pool, head);
+  init_data (dhcp_pool, &head);
 
-  get_data (argc, argv, dhcp_pool, head);
+  get_data (argc, argv, dhcp_pool, &head);
 
-  write_config_file (dhcp_pool, head);
-  write_backup_file (dhcp_pool, head);
+  write_config_file (dhcp_pool, &head);
+  write_backup_file (dhcp_pool, &head);
 
   if (execvp (args[0], args) == -1)
     {
