@@ -5,7 +5,9 @@ This project helps you to configure your dhcp server by adding arguments to dhcp
 
 Use Makefile to build and debug the program.
 # usage
-sudo ./theconfig [option] [arg1] [arg2]
+sudo ./theconfig ip-dhcp-pool poolname
+
+sudo ./theconfig poolname option arg1 arg2
 
 # options
 -reset
@@ -21,6 +23,7 @@ exit the program with no change in files
 network
 
 add 2 arguments after this option to ser subnet and netmask
+
 
 default-router
 
