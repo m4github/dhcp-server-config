@@ -24,7 +24,6 @@
 if(!strcmp(myfield,"\0")) \
  strcpy(myfield,"-");\
 
-#define MAX_LEN 3
 #define IP_LEN 15
 
 struct pool
