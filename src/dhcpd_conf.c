@@ -38,13 +38,14 @@ init_data (struct pool *data, struct stailqhead *head)
         }
       exit (EXIT_FAILURE);
     }
+
   fseek (configInfo, 0, SEEK_END);
   long size = ftell (configInfo);
   fseek (configInfo, 0, SEEK_SET);
 
-  while (ftell (configInfo) < size-2)
+  while (ftell (configInfo) < size - 2)
     {
-      struct pool *data = malloc (sizeof (struct pool));
+      data = malloc (sizeof (struct pool));
 
       fscanf (configInfo, "%s", data->name);
       fscanf (configInfo, "%s", data->subnet);
@@ -99,9 +100,14 @@ get_data (int argc, char *argv[], struct pool *data, struct stailqhead *head)
             exit (EXIT_FAILURE);
           }
       }
-      struct pool *data = malloc (sizeof (struct pool));
+      data = malloc (sizeof (struct pool));
       STAILQ_INSERT_TAIL (head, data, next);
       snprintf (data->name, strlen (argv[2]) + 1, "%s", argv[2]);
+      sprintf (data->subnet, "%s", "-");
+      sprintf (data->netmask, "%s", "-");
+      sprintf (data->rangeUp, "%s", "-");
+      sprintf (data->rangeDown, "%s", "-");
+      sprintf (data->gateway, "%s", "-");
       return;
     }
 
@@ -191,30 +197,38 @@ write_config_file (struct pool *data, struct stailqhead *head)
       fprintf (stderr, "Failed to open file.");
       exit (EXIT_FAILURE);
     }
+
   STAILQ_FOREACH (data, head, next)
   {
+    FIELD_TMPLATE (data->name);
     fprintf (dhcpdconfig, "%s", "#pool ");
     fprintf (dhcpdconfig, "%s", data->name);
     fprintf (dhcpdconfig, "%s", "\n");
 
+    FIELD_TMPLATE (data->subnet);
     fprintf (dhcpdconfig, "%s", "subnet ");
     fprintf (dhcpdconfig, "%s", data->subnet);
 
+    FIELD_TMPLATE (data->netmask);
     fprintf (dhcpdconfig, "%s", " netmask ");
     fprintf (dhcpdconfig, "%s", data->netmask);
     fprintf (dhcpdconfig, "%s", "{\n");
 
+    FIELD_TMPLATE (data->rangeUp);
     fprintf (dhcpdconfig, "%s", "range ");
     fprintf (dhcpdconfig, "%s", data->rangeUp);
     fprintf (dhcpdconfig, "%s", " ");
 
+    FIELD_TMPLATE (data->rangeDown);
     fprintf (dhcpdconfig, "%s", data->rangeDown);
     fprintf (dhcpdconfig, "%s", ";\n");
 
+    FIELD_TMPLATE (data->gateway);
     fprintf (dhcpdconfig, "%s", "option routers ");
     fprintf (dhcpdconfig, "%s", data->gateway);
     fprintf (dhcpdconfig, "%s", ";\n");
 
+    FIELD_TMPLATE (data->dns);
     fprintf (dhcpdconfig, "%s", "option domain-name-servers ");
     fprintf (dhcpdconfig, "%s", data->dns);
     fprintf (dhcpdconfig, "%s", ";}\n");
@@ -233,28 +247,26 @@ write_backup_file (struct pool *data, struct stailqhead *head)
     }
   STAILQ_FOREACH (data, head, next)
   {
-    FIELD_TMPLATE (data->name);
     fprintf (configInfo, "%s", data->name);
     fprintf (configInfo, "%s", "\n");
-    FIELD_TMPLATE (data->subnet);
+
     fprintf (configInfo, "%s", data->subnet);
     fprintf (configInfo, "%s", "\n");
-    FIELD_TMPLATE (data->netmask);
+
     fprintf (configInfo, "%s", data->netmask);
     fprintf (configInfo, "%s", "\n");
-    FIELD_TMPLATE (data->rangeUp);
+
     fprintf (configInfo, "%s", data->rangeUp);
     fprintf (configInfo, "%s", "\n");
-    FIELD_TMPLATE (data->rangeDown);
+
     fprintf (configInfo, "%s", data->rangeDown);
     fprintf (configInfo, "%s", "\n");
-    FIELD_TMPLATE (data->gateway);
+
     fprintf (configInfo, "%s", data->gateway);
     fprintf (configInfo, "%s", "\n");
-    FIELD_TMPLATE (data->dns);
+
     fprintf (configInfo, "%s", data->dns);
     fprintf (configInfo, "%s", "\n");
   }
   fclose (configInfo);
 }
-
