@@ -42,31 +42,18 @@ init_data (struct pool *data, struct stailqhead *head)
   long size = ftell (configInfo);
   fseek (configInfo, 0, SEEK_SET);
 
-  while (ftell (configInfo) < size)
+  while (ftell (configInfo) < size-2)
     {
       struct pool *data = malloc (sizeof (struct pool));
 
       fscanf (configInfo, "%s", data->name);
-      FIELD_TMPLATE (data->name);
-
       fscanf (configInfo, "%s", data->subnet);
-      FIELD_TMPLATE (data->subnet);
-
       fscanf (configInfo, "%s", data->netmask);
-      FIELD_TMPLATE (data->netmask);
-
       fscanf (configInfo, "%s", data->rangeUp);
-      FIELD_TMPLATE (data->rangeUp);
-
       fscanf (configInfo, "%s", data->rangeDown);
-      FIELD_TMPLATE (data->rangeDown);
-
       fscanf (configInfo, "%s", data->gateway);
-      FIELD_TMPLATE (data->gateway);
-
       fscanf (configInfo, "%s", data->dns);
-      FIELD_TMPLATE (data->dns);
-      
+
       STAILQ_INSERT_TAIL (head, data, next);
     }
   fclose (configInfo);
@@ -246,24 +233,25 @@ write_backup_file (struct pool *data, struct stailqhead *head)
     }
   STAILQ_FOREACH (data, head, next)
   {
+    FIELD_TMPLATE (data->name);
     fprintf (configInfo, "%s", data->name);
     fprintf (configInfo, "%s", "\n");
-
+    FIELD_TMPLATE (data->subnet);
     fprintf (configInfo, "%s", data->subnet);
     fprintf (configInfo, "%s", "\n");
-
+    FIELD_TMPLATE (data->netmask);
     fprintf (configInfo, "%s", data->netmask);
     fprintf (configInfo, "%s", "\n");
-
+    FIELD_TMPLATE (data->rangeUp);
     fprintf (configInfo, "%s", data->rangeUp);
     fprintf (configInfo, "%s", "\n");
-
+    FIELD_TMPLATE (data->rangeDown);
     fprintf (configInfo, "%s", data->rangeDown);
     fprintf (configInfo, "%s", "\n");
-
+    FIELD_TMPLATE (data->gateway);
     fprintf (configInfo, "%s", data->gateway);
     fprintf (configInfo, "%s", "\n");
-
+    FIELD_TMPLATE (data->dns);
     fprintf (configInfo, "%s", data->dns);
     fprintf (configInfo, "%s", "\n");
   }
