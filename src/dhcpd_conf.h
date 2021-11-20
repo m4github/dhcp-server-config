@@ -20,10 +20,12 @@
 #include <stddef.h>
 #include <sys/queue.h>
 
-#define FIELD_TMPLATE(myfield) \
+#define field_template(myfield) \
 if(!strcmp(myfield,"\0")) \
  strcpy(myfield,"-");\
 
+#define CONFIG_INFO "/etc/dhcp/config_info.txt"
+#define DHCP_CONFIG "/etc/dhcp/dhcpd.conf"
 #define IP_LEN 15
 
 struct pool

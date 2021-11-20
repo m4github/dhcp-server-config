@@ -26,10 +26,10 @@ argument_counter (int argc, int count)
 void
 init_data (struct pool *data, struct stailqhead *head)
 {
-  FILE *configInfo = fopen ("/etc/dhcp/config_info.txt", "r");
+  FILE *configInfo = fopen (CONFIG_INFO, "r");
   if (configInfo == NULL)
     {
-      configInfo = fopen ("/etc/dhcp/config_info.txt", "w");
+      configInfo = fopen (CONFIG_INFO, "w");
       fprintf (stderr, "Failed to open config_info file. please try again.\n");
       if (configInfo == NULL)
         {
@@ -65,8 +65,8 @@ get_data (int argc, char *argv[], struct pool *data, struct stailqhead *head)
 {
   if (argc && !strcmp (argv[1], "-reset"))
     {
-      FILE *pointer1 = fopen ("/etc/dhcp/dhcpd.conf", "w");
-      FILE *pointer2 = fopen ("/etc/dhcp/config_info.txt", "w");
+      FILE *pointer1 = fopen (DHCP_CONFIG, "w");
+      FILE *pointer2 = fopen (CONFIG_INFO, "w");
 
       if (pointer1)
         {
@@ -192,7 +192,7 @@ get_data (int argc, char *argv[], struct pool *data, struct stailqhead *head)
 void
 write_config_file (struct pool *data, struct stailqhead *head)
 {
-  FILE *dhcpdconfig = fopen ("/etc/dhcp/dhcpd.conf", "w");
+  FILE *dhcpdconfig = fopen (DHCP_CONFIG, "w");
   if (dhcpdconfig == NULL)
     {
       fprintf (stderr, "Failed to open file.");
@@ -201,35 +201,35 @@ write_config_file (struct pool *data, struct stailqhead *head)
 
   STAILQ_FOREACH (data, head, next)
   {
-    FIELD_TMPLATE (data->name);
+    field_template (data->name);
     fprintf (dhcpdconfig, "%s", "#pool ");
     fprintf (dhcpdconfig, "%s", data->name);
     fprintf (dhcpdconfig, "%s", "\n");
 
-    FIELD_TMPLATE (data->subnet);
+    field_template (data->subnet);
     fprintf (dhcpdconfig, "%s", "subnet ");
     fprintf (dhcpdconfig, "%s", data->subnet);
 
-    FIELD_TMPLATE (data->netmask);
+    field_template (data->netmask);
     fprintf (dhcpdconfig, "%s", " netmask ");
     fprintf (dhcpdconfig, "%s", data->netmask);
     fprintf (dhcpdconfig, "%s", "{\n");
 
-    FIELD_TMPLATE (data->rangeUp);
+    field_template (data->rangeUp);
     fprintf (dhcpdconfig, "%s", "range ");
     fprintf (dhcpdconfig, "%s", data->rangeUp);
     fprintf (dhcpdconfig, "%s", " ");
 
-    FIELD_TMPLATE (data->rangeDown);
+    field_template (data->rangeDown);
     fprintf (dhcpdconfig, "%s", data->rangeDown);
     fprintf (dhcpdconfig, "%s", ";\n");
 
-    FIELD_TMPLATE (data->gateway);
+    field_template (data->gateway);
     fprintf (dhcpdconfig, "%s", "option routers ");
     fprintf (dhcpdconfig, "%s", data->gateway);
     fprintf (dhcpdconfig, "%s", ";\n");
 
-    FIELD_TMPLATE (data->dns);
+    field_template (data->dns);
     fprintf (dhcpdconfig, "%s", "option domain-name-servers ");
     fprintf (dhcpdconfig, "%s", data->dns);
     fprintf (dhcpdconfig, "%s", ";}\n");
@@ -240,7 +240,7 @@ write_config_file (struct pool *data, struct stailqhead *head)
 void
 write_backup_file (struct pool *data, struct stailqhead *head)
 {
-  FILE *configInfo = fopen ("/etc/dhcp/config_info.txt", "w");
+  FILE *configInfo = fopen (CONFIG_INFO, "w");
   if (configInfo == NULL)
     {
       fprintf (stderr, "Failed to open file.");
