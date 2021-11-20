@@ -108,6 +108,7 @@ get_data (int argc, char *argv[], struct pool *data, struct stailqhead *head)
       sprintf (data->rangeUp, "%s", "-");
       sprintf (data->rangeDown, "%s", "-");
       sprintf (data->gateway, "%s", "-");
+      sprintf (data->dns, "%s", "-");
       return;
     }
 
