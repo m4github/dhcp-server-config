@@ -20,6 +20,10 @@
 #include <stddef.h>
 #include <sys/queue.h>
 
+#define FIELD_TMPLATE(myfield) \
+if(!strcmp(myfield,"\0")) \
+ strcpy(myfield,"-");\
+
 #define MAX_LEN 3
 #define IP_LEN 15
 

@@ -42,18 +42,31 @@ init_data (struct pool *data, struct stailqhead *head)
   long size = ftell (configInfo);
   fseek (configInfo, 0, SEEK_SET);
 
-  while (ftell (configInfo) != size)
+  while (ftell (configInfo) < size)
     {
       struct pool *data = malloc (sizeof (struct pool));
 
       fscanf (configInfo, "%s", data->name);
-      fscanf (configInfo, "%s", data->subnet);
-      fscanf (configInfo, "%s", data->netmask);
-      fscanf (configInfo, "%s", data->rangeUp);
-      fscanf (configInfo, "%s", data->rangeDown);
-      fscanf (configInfo, "%s", data->gateway);
-      fscanf (configInfo, "%s", data->dns);
+      FIELD_TMPLATE (data->name);
 
+      fscanf (configInfo, "%s", data->subnet);
+      FIELD_TMPLATE (data->subnet);
+
+      fscanf (configInfo, "%s", data->netmask);
+      FIELD_TMPLATE (data->netmask);
+
+      fscanf (configInfo, "%s", data->rangeUp);
+      FIELD_TMPLATE (data->rangeUp);
+
+      fscanf (configInfo, "%s", data->rangeDown);
+      FIELD_TMPLATE (data->rangeDown);
+
+      fscanf (configInfo, "%s", data->gateway);
+      FIELD_TMPLATE (data->gateway);
+
+      fscanf (configInfo, "%s", data->dns);
+      FIELD_TMPLATE (data->dns);
+      
       STAILQ_INSERT_TAIL (head, data, next);
     }
   fclose (configInfo);
@@ -99,7 +112,7 @@ get_data (int argc, char *argv[], struct pool *data, struct stailqhead *head)
             exit (EXIT_FAILURE);
           }
       }
-      data = malloc (sizeof (struct pool));
+      struct pool *data = malloc (sizeof (struct pool));
       STAILQ_INSERT_TAIL (head, data, next);
       snprintf (data->name, strlen (argv[2]) + 1, "%s", argv[2]);
       return;
