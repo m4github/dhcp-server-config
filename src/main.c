@@ -12,26 +12,26 @@
 #include "dhcpd_conf.h"
 
 int
-main (int argc, char *argv[])
+main (const int argc, char *argv[])
 {
   struct pool *dhcp_pool;
-  struct stailqhead head;
-  STAILQ_INIT (&head);
+  struct stailqhead pool_head;
+  STAILQ_INIT (&pool_head);
 
   char *args[] = {"service isc-dhcp-server restart", NULL};
 
-  if (!argv[1])
+  if (argc == 0)
     {
       fprintf (stderr, "Add any arguments.\n");
       exit (EXIT_FAILURE);
     }
 
-  init_data (dhcp_pool, &head);
+  init_data (dhcp_pool, &pool_head);
 
-  get_data (argc, argv, dhcp_pool, &head);
+  get_data (argc, argv, dhcp_pool, &pool_head);
 
-  write_config_file (dhcp_pool, &head);
-  write_backup_file (dhcp_pool, &head);
+  write_config_file (&pool_head);
+  write_backup_file (&pool_head);
 
   if (execvp (args[0], args) == -1)
     {
