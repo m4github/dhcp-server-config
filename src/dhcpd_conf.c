@@ -31,13 +31,11 @@ init_data (struct stailqhead *pool_head)
   if (backup_fp == NULL)
     {
       backup_fp = fopen (DHCP_BACKUP, "w");
-      fprintf (stderr, "Failed to open config_info file. please try again.\n");
       if (backup_fp == NULL)
         {
           fprintf (stderr, "Failed to open config_info file.\n");
           exit (EXIT_FAILURE);
         }
-      exit (EXIT_FAILURE);
     }
 
   fseek (backup_fp, 0, SEEK_END);
