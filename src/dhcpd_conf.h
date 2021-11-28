@@ -43,12 +43,12 @@ struct pool
 
 STAILQ_HEAD (stailqhead, pool);
 
-int argument_counter (int argc, int count);
+int check_arg_count (int argc, int count);
 
-void init_data (struct pool *data, struct stailqhead *head);
+void init_data (struct pool *data, struct stailqhead *pool_head);
 void get_data (int argc, char *argv[], struct pool *data,
-               struct stailqhead *head);
-void write_config_file (struct pool *data, struct stailqhead *head);
-void write_backup_file (struct pool *data, struct stailqhead *head);
+               struct stailqhead *pool_head);
+void write_config_file (struct stailqhead *pool_head);
+void write_backup_file (struct stailqhead *pool_head);
 
 #endif

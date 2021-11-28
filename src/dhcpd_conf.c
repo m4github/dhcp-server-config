@@ -12,7 +12,7 @@
 #include "dhcpd_conf.h"
 
 int
-argument_counter (int argc, int count)
+check_arg_count (int argc, int count)
 {
   if (argc < count)
     {
@@ -24,7 +24,7 @@ argument_counter (int argc, int count)
 }
 
 void
-init_data (struct pool *data, struct stailqhead *head)
+init_data (struct pool *data, struct stailqhead *pool_head)
 {
   FILE *configInfo = fopen (CONFIG_INFO, "r");
   if (configInfo == NULL)
@@ -55,13 +55,14 @@ init_data (struct pool *data, struct stailqhead *head)
       fscanf (configInfo, "%s", data->gateway);
       fscanf (configInfo, "%s", data->dns);
 
-      STAILQ_INSERT_TAIL (head, data, next);
+      STAILQ_INSERT_TAIL (pool_head, data, next);
     }
   fclose (configInfo);
 }
 
 void
-get_data (int argc, char *argv[], struct pool *data, struct stailqhead *head)
+get_data (const int argc, char *argv[], struct pool *data,
+          struct stailqhead *pool_head)
 {
   if (argc && !strcmp (argv[1], "-reset"))
     {
@@ -89,10 +90,10 @@ get_data (int argc, char *argv[], struct pool *data, struct stailqhead *head)
 
   else if (argc && !strcmp (argv[1], "ip-dhcp-pool"))
     {
-      if (argument_counter (argc, 3))
+      if (check_arg_count (argc, 3))
         exit (EXIT_FAILURE);
 
-      STAILQ_FOREACH (data, head, next)
+      STAILQ_FOREACH (data, pool_head, next)
       {
         if (!strcmp (argv[2], data->name))
           {
@@ -101,7 +102,7 @@ get_data (int argc, char *argv[], struct pool *data, struct stailqhead *head)
           }
       }
       data = malloc (sizeof (struct pool));
-      STAILQ_INSERT_TAIL (head, data, next);
+      STAILQ_INSERT_TAIL (pool_head, data, next);
       snprintf (data->name, strlen (argv[2]) + 1, "%s", argv[2]);
       sprintf (data->subnet, "%s", "-");
       sprintf (data->netmask, "%s", "-");
@@ -114,10 +115,10 @@ get_data (int argc, char *argv[], struct pool *data, struct stailqhead *head)
 
   else if (argc  && !strcmp (argv[2], "network"))
     {
-      if (argument_counter (argc, 5))
+      if (check_arg_count (argc, 5))
         exit (EXIT_FAILURE);
 
-      STAILQ_FOREACH (data, head, next)
+      STAILQ_FOREACH (data, pool_head, next)
       {
         if (!strcmp (data->name, argv[1]))
           {
@@ -132,10 +133,10 @@ get_data (int argc, char *argv[], struct pool *data, struct stailqhead *head)
 
   else if (argc && !strcmp (argv[2], "range"))
     {
-      if (argument_counter (argc, 5))
+      if (check_arg_count (argc, 5))
         exit (EXIT_FAILURE);
 
-      STAILQ_FOREACH (data, head, next)
+      STAILQ_FOREACH (data, pool_head, next)
       {
         if (!strcmp (data->name, argv[1]))
           {
@@ -150,10 +151,10 @@ get_data (int argc, char *argv[], struct pool *data, struct stailqhead *head)
 
   else if (argc && !strcmp (argv[2], "default-router"))
     {
-      if (argument_counter (argc, 4))
+      if (check_arg_count (argc, 4))
         exit (EXIT_FAILURE);
 
-      STAILQ_FOREACH (data, head, next)
+      STAILQ_FOREACH (data, pool_head, next)
       {
         if (!strcmp (data->name, argv[1]))
           {
@@ -167,10 +168,10 @@ get_data (int argc, char *argv[], struct pool *data, struct stailqhead *head)
 
   else if (argc && !strcmp (argv[2], "dns-server"))
     {
-      if (argument_counter (argc, 4))
+      if (check_arg_count (argc, 4))
         exit (EXIT_FAILURE);
 
-      STAILQ_FOREACH (data, head, next)
+      STAILQ_FOREACH (data, pool_head, next)
       {
         if (!strcmp (data->name, argv[1]))
           {
@@ -190,8 +191,9 @@ get_data (int argc, char *argv[], struct pool *data, struct stailqhead *head)
 }
 
 void
-write_config_file (struct pool *data, struct stailqhead *head)
+write_config_file (struct stailqhead *pool_head)
 {
+  struct pool *data;
   FILE *dhcpdconfig = fopen (DHCP_CONFIG, "w");
   if (dhcpdconfig == NULL)
     {
@@ -199,7 +201,7 @@ write_config_file (struct pool *data, struct stailqhead *head)
       exit (EXIT_FAILURE);
     }
 
-  STAILQ_FOREACH (data, head, next)
+  STAILQ_FOREACH (data, pool_head, next)
   {
     field_template (data->name);
     fprintf (dhcpdconfig, "%s", "#pool ");
@@ -238,15 +240,16 @@ write_config_file (struct pool *data, struct stailqhead *head)
 }
 
 void
-write_backup_file (struct pool *data, struct stailqhead *head)
+write_backup_file (struct stailqhead *pool_head)
 {
+  struct pool *data;
   FILE *configInfo = fopen (CONFIG_INFO, "w");
   if (configInfo == NULL)
     {
       fprintf (stderr, "Failed to open file.");
       exit (EXIT_FAILURE);
     }
-  STAILQ_FOREACH (data, head, next)
+  STAILQ_FOREACH (data, pool_head, next)
   {
     fprintf (configInfo, "%s", data->name);
     fprintf (configInfo, "%s", "\n");
