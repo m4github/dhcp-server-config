@@ -20,11 +20,7 @@
 #include <stddef.h>
 #include <sys/queue.h>
 
-#define field_template(myfield) \
-if(!strcmp(myfield,"\0")) \
- strcpy(myfield,"-");\
-
-#define CONFIG_INFO "/etc/dhcp/config_info.txt"
+#define DHCP_BACKUP "/etc/dhcp/dhcp_backup.txt"
 #define DHCP_CONFIG "/etc/dhcp/dhcpd.conf"
 #define IP_LEN 15
 
@@ -45,8 +41,8 @@ STAILQ_HEAD (stailqhead, pool);
 
 int check_arg_count (int argc, int count);
 
-void init_data (struct pool *data, struct stailqhead *pool_head);
-void get_data (int argc, char *argv[], struct pool *data,
+void init_data (struct stailqhead *pool_head);
+void get_data (int argc, char *argv[],
                struct stailqhead *pool_head);
 void write_config_file (struct stailqhead *pool_head);
 void write_backup_file (struct stailqhead *pool_head);

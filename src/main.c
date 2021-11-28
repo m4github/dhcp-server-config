@@ -26,9 +26,9 @@ main (const int argc, char *argv[])
       exit (EXIT_FAILURE);
     }
 
-  init_data (dhcp_pool, &pool_head);
+  init_data (&pool_head);
 
-  get_data (argc, argv, dhcp_pool, &pool_head);
+  get_data (argc, argv, &pool_head);
 
   write_config_file (&pool_head);
   write_backup_file (&pool_head);
