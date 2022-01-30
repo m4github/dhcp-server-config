@@ -17,20 +17,36 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <stddef.h>
+
 #include <sys/queue.h>
 
-#define MAX_LEN 3
+#define DHCP_BACKUP "/etc/dhcp/dhcp_backup.txt"
+#define DHCP_CONFIG "/etc/dhcp/dhcpd.conf"
 #define IP_LEN 15
 
 struct pool
 {
-  char *name;
+  char name[IP_LEN];
   char subnet[IP_LEN];
   char netmask[IP_LEN];
   char rangeUp[IP_LEN];
   char rangeDown[IP_LEN];
   char gateway[IP_LEN];
   char dns[IP_LEN];
+
+  STAILQ_ENTRY (pool) next;
+};
+
+STAILQ_HEAD (stailqhead, pool);
+
+int check_arg_count (int argc, int count);
+
+void init_data (struct stailqhead *pool_head);
+void get_data (int argc, char *argv[],
+               struct stailqhead *pool_head);
+void write_config_file (struct stailqhead *pool_head);
+void write_backup_file (struct stailqhead *pool_head);
 
   LIST_ENTRY (pool) next;
 };
