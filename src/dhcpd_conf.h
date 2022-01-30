@@ -17,10 +17,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
- refactore
 #include <stddef.h>
 
- main
 #include <sys/queue.h>
 
 #define DHCP_BACKUP "/etc/dhcp/dhcp_backup.txt"
@@ -37,7 +35,6 @@ struct pool
   char gateway[IP_LEN];
   char dns[IP_LEN];
 
- refactore
   STAILQ_ENTRY (pool) next;
 };
 
@@ -62,6 +59,5 @@ void init_data (struct pool *data, struct listhead head);
 void get_data (int argc, char *argv[], struct pool *data);
 void write_config_file (struct pool *data);
 void write_backup_file (struct pool *data);
- main
 
 #endif
