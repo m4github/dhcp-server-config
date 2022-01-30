@@ -15,9 +15,14 @@ int
 main (const int argc, char *argv[])
 {
   struct pool *dhcp_pool;
+ refactore
   struct stailqhead pool_head;
   STAILQ_INIT (&pool_head);
 
+
+  struct listhead head;
+  
+ main
   char *args[] = {"service isc-dhcp-server restart", NULL};
 
   if (argc == 0)
@@ -26,12 +31,22 @@ main (const int argc, char *argv[])
       exit (EXIT_FAILURE);
     }
 
+ refactore
   init_data (&pool_head);
 
   get_data (argc, argv, &pool_head);
 
   write_config_file (&pool_head);
   write_backup_file (&pool_head);
+
+  init_data (dhcp_pool, head);
+
+  get_data (argc, argv, dhcp_pool);
+  LIST_INSERT_AFTER (dhcp_pool, dhcp_pool, next);
+
+  write_config_file (dhcp_pool);
+  write_backup_file (dhcp_pool);
+ main
 
   if (execvp (args[0], args) == -1)
     {
